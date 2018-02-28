@@ -1,4 +1,4 @@
-# facultyprofilesview
+# fp-api
 
 **To get started**:
 
