@@ -6,7 +6,13 @@ var Schema = mongoose.Schema;
 var PersonSchema = new Schema({
   BIO : String,
   RESEARCH_INTERESTS : String,
-  TEACHING_INTERESTS : String
+  TEACHING_INTERESTS : String,
+  username : String,
+  PREFIX : String,
+  FNAME : String,
+  MNAME : String,
+  LNAME : String,
+  EMAIL : String
 });
 
 module.exports = mongoose.model('Person', PersonSchema);

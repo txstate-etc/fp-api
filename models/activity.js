@@ -10,6 +10,10 @@ var Schema = mongoose.Schema;
 // * arts_collections venue vs location
 var ActivitySchema = new Schema({
   id: String,
+  username: String,
+  doc_type: String,
+  user_id: String,
+  time_range: String,
   TITLE : {
     type: String,
     alias: 'title'
@@ -41,19 +45,19 @@ var ActivitySchema = new Schema({
   },
   PUBCNTRY : String,
   VOLUME : {
-    type: Number,
+    type: String,
     alias: 'volume'
   },
   ISSUE : {
-    type: Number,
+    type: String,
     alias: 'issue'
   },
   EDITION : {
-    type: Number,
+    type: String,
     alias: 'edition'
   },
   NUMBER : {
-    type: Number,
+    type: String,
     alias: 'number'
   },
   PAGENUM : {
@@ -110,8 +114,8 @@ var ActivitySchema = new Schema({
   AWARDORG : String,
   AWARDORG_OTHER : String,
   SPONORG : String,
-  AMOUNT : Number,
-  AWARDNUM : Number,
+  AMOUNT : String,
+  AWARDNUM : String,
   CONGRANT_INVEST : [{
     FNAME : String,
     MNAME : String,
