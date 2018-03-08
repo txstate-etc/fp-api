@@ -12,7 +12,12 @@ var PersonSchema = new Schema({
   FNAME : String,
   MNAME : String,
   LNAME : String,
-  EMAIL : String
+  EMAIL : String,
+  BUILDING: String,
+  ROOMNUM: String,
+  OPHONE1: String,
+  OPHONE2: String,
+  OPHONE3: String
 });
 
 module.exports = mongoose.model('Person', PersonSchema);
