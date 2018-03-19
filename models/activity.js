@@ -98,6 +98,9 @@ var ActivitySchema = new Schema({
   DTM_END : String,
   DTD_END : Number,
   DTY_END : Number,
+  DTM_DATE : String,
+  DTD_DATE : Number,
+  DTY_DATE : Number,
   //start arts_collections
   TYPE : String,
   COLLECTION_NAME: String,
