@@ -18,6 +18,7 @@ var ActivitySchema = new Schema({
     type: String,
     alias: 'title'
   },
+  TITLE_SECONDARY : String,
   STATUS : String,
   CONTYPE : String,
   CONTYPEOTHER: String,
