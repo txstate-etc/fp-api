@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 require('../helpers/citation-helper.js')();
+var Citeproc = require('../citeproc-engine.js');
 
 //If the route is /person/netID, build and return the profile for the faculty member
 router.route('/:netId')
@@ -34,9 +35,11 @@ router.route('/:netId')
                      .limit(5)
     })
     .then(function(publications){
+      var citationFormat = 'apa';
+      var citeproc = new Citeproc(citationFormat);
       profile.scholarly_creative = [];
       for (var pub of publications) {
-        var citation = buildScolarlyCreativeCitation(pub);
+        var citation = buildScholarlyCreativeCitation(pub, citeproc);
         profile.scholarly_creative.push({"citation" : citation})
       }
       //now get awards
@@ -92,6 +95,7 @@ router.route('/:netId')
       res.json(profile)
     })
     .catch(function(err){
+      console.log(err)
       next(err)
     })
   })
@@ -155,18 +159,24 @@ function handleScholarlyCreative(activities) {
   var result = {"activity-title": "Scholarly Creative Works"};
   result.activities = [];
   var currentGroup = {};
+
+  //TODO: Here, we would need to get their preferred citation format
+  //var citationFormat = 'modern-language-association';
+  var citationFormat = 'apa';
+  var citeproc = new Citeproc(citationFormat);
+
   for (var activity of activities) {
     //TODO: We will probably only show things that have been published.
     var activityYear = activity.DTY_PUB || activity.DTY_ACC || activity.DTY_SUB || activity.DTY_EXPSUB || activity.DTY_END || activity.DTY_START || activity.DTY_DATE || "Date Not Specified";
     if (activityYear == currentGroup.year) {
-      currentGroup.items.push({activity: buildScolarlyCreativeCitation(activity)})
+      currentGroup.items.push({activity: buildScholarlyCreativeCitation(activity, citeproc)})
     }
     else {
       if (currentGroup.year)
         result.activities.push(currentGroup);
       currentGroup = {};
       currentGroup.year = activityYear;
-      currentGroup.items = [{activity: buildScolarlyCreativeCitation(activity)}]
+      currentGroup.items = [{activity: buildScholarlyCreativeCitation(activity, citeproc)}]
     }
   }
   if (currentGroup.year)

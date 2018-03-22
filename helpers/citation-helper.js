@@ -1,10 +1,15 @@
+require('./csl-helper.js')();
+//var citeproc = require('../citeproc-engine.js');
 module.exports = function() {
 
-  this.buildScolarlyCreativeCitation = function(activity) {
-    //just a temporary too-minimal citation
+  this.buildScholarlyCreativeCitation = function(activity, citeprocInstance) {
     var year = activity.DTY_PUB || activity.DTY_ACC || activity.DTY_SUB || activity.DTY_EXPSUB
     var title = activity.TITLE;
-    return `(${year}) ${title}`;
+    var data = {};
+    data[activity.id] = toCSL(activity);
+    citeprocInstance.setItems(data);
+    var citation = citeprocInstance.createCitation();
+    return citation;
   };
 
   this.buildAwardCitation = function(activity) {
