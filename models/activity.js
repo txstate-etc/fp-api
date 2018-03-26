@@ -110,11 +110,25 @@ var ActivitySchema = new Schema({
     alias: 'medium'
   },
   NUM_ARTISTS : String,
+  SCOPE : String,
+  DTM_ACQUIRED : String,
+  DTD_ACQUIRED : Number,
+  DTY_ACQUIRED : Number,
   COLLECTION_TYPE : String,
   VENUE: [{
     TITLE : String,
     NAME: String,
-    LOCATION: String
+    LOCATION: String,
+    DTM_END : String,
+    DTD_END : Number,
+    DTY_END : Number
+  }],
+  REVIEW: [{
+    FNAME : String,
+    MNAME : String,
+    LNAME: String,
+    TITLE : String,
+    REVIEW_TYPE : String
   }],
   //start arts_prod
   MEDIA_TYPE : String,
