@@ -1,5 +1,4 @@
 require('./csl-helper.js')();
-//var citeproc = require('../citeproc-engine.js');
 module.exports = function() {
 
   this.buildScholarlyCreativeCitation = function(activity, citeprocInstance) {
@@ -12,18 +11,15 @@ module.exports = function() {
     return citation;
   };
 
-  this.buildAwardCitation = function(activity) {
-    //just a temporary too-minimal citation
+  this.formatAwardText = function(activity) {
     return `${activity.NAME}, ${activity.ORG}. (${activity.DTY_END})`;
   }
 
-  this.buildGrantCitation = function(activity) {
-    //just a temporary too-minimal citation
+  this.formatGrantText = function(activity) {
     return `${activity.TITLE}`;
   }
 
-  this.buildServiceCitation = function(activity) {
-    //just a temporary too-minimal citation
+  this.formatServiceText = function(activity) {
     return `${activity.ORG}`;
   }
 

@@ -161,7 +161,6 @@ function handleScholarlyCreative(activities) {
   var currentGroup = {};
 
   //TODO: Here, we would need to get their preferred citation format
-  //var citationFormat = 'modern-language-association';
   var citationFormat = 'apa';
   var citeproc = new Citeproc(citationFormat);
 
@@ -191,14 +190,14 @@ function handleAwards(activities) {
   for (var activity of activities) {
     var activityYear = activity.DTY_END || activity.DTY_START || "Date Not Specified";
     if (activityYear == currentGroup.year) {
-      currentGroup.items.push({activity: buildAwardCitation(activity)})
+      currentGroup.items.push({activity: formatAwardText(activity)})
     }
     else {
       if (currentGroup.year)
         result.activities.push(currentGroup);
       currentGroup = {};
       currentGroup.year = activityYear;
-      currentGroup.items = [{activity: buildAwardCitation(activity)}]
+      currentGroup.items = [{activity: formatAwardText(activity)}]
     }
   }
   if (currentGroup.year)
@@ -213,14 +212,14 @@ function handleGrants(activities) {
   for (var activity of activities) {
     var activityYear = activity.DTY_END || activity.DTY_START || "Date Not Specified";
     if (activityYear == currentGroup.year) {
-      currentGroup.items.push({activity: buildGrantCitation(activity)})
+      currentGroup.items.push({activity: formatGrantText(activity)})
     }
     else {
       if (currentGroup.year)
         result.activities.push(currentGroup);
       currentGroup = {};
       currentGroup.year = activityYear;
-      currentGroup.items = [{activity: buildGrantCitation(activity)}]
+      currentGroup.items = [{activity: formatGrantText(activity)}]
     }
   }
   if (currentGroup.year)
@@ -235,14 +234,14 @@ function handleService(activities) {
   for (var activity of activities) {
     var activityYear = activity.DTY_END || "Current";
     if (activityYear == currentGroup.year) {
-      currentGroup.items.push({activity: buildServiceCitation(activity)})
+      currentGroup.items.push({activity: formatServiceText(activity)})
     }
     else {
       if (currentGroup.year)
         result.activities.push(currentGroup);
       currentGroup = {};
       currentGroup.year = activityYear;
-      currentGroup.items = [{activity: buildServiceCitation(activity)}]
+      currentGroup.items = [{activity: formatServiceText(activity)}]
     }
   }
   if (currentGroup.year)
