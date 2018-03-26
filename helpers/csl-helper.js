@@ -177,7 +177,6 @@ function getCSLIssuedDate(activity) {
     day = activity.DTD_EXPSUB;
   }
   else {
-    issued.year = 1925;
     return issued;
   }
   if (day) issued.day = day;
