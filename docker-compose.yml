@@ -1,0 +1,18 @@
+version: '3'
+services:
+  fp-api:
+    build: .
+    environment:
+      DB_HOST: mongodb
+    ports:
+      - 3000:80
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - facultyprofilesdb:/data/db
+volumes:
+  facultyprofilesdb: {}

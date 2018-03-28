@@ -18,7 +18,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // database setup
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/faculty_profiles')
+var db_host = process.env.DB_HOST || 'localhost';
+var db_port = process.env.DB_PORT || '27017';
+var db_user = process.env.DB_USER || '';
+var db_pw = process.env.DB_PASSWORD || '';
+var db_name = process.env.DB_DATABASE || 'faculty_profiles';
+mongoose.connect('mongodb://'+db_host+':'+db_port+'/'+db_name);
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
