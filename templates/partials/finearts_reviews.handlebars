@@ -1,0 +1,12 @@
+{{#ng-each reviews~}}
+	{{#ensureperiod}}
+	{{#if type}}({{type}}){{/if}}
+	{{#if name}}
+		{{#ng-first}}Reviewed by: {{else}}; {{/ng-first}}
+
+		{{~name}}{{#all name title}}, {{/all}}{{title~}}
+	{{/if}}
+	{{/ensureperiod}}
+{{~/ng-each}}
+
+{{#if reviewercomments}}<br/><b>Reviewer Comments</b>: {{html reviewercomments}}{{/if}}

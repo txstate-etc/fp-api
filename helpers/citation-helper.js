@@ -1,14 +1,22 @@
 require('./csl-helper.js')();
+var fs = require('fs')
+require ('./finearts.js')();
+
 module.exports = function() {
 
   this.buildScholarlyCreativeCitation = function(activity, citeprocInstance) {
-    var year = activity.DTY_PUB || activity.DTY_ACC || activity.DTY_SUB || activity.DTY_EXPSUB
-    var title = activity.TITLE;
-    var data = {};
-    data[activity.id] = toCSL(activity);
-    citeprocInstance.setItems(data);
-    var citation = citeprocInstance.createCitation();
-    return citation;
+    if (activity.doc_type == "INTELLCONT") {
+      var data = {};
+      data[activity.id] = toCSL(activity);
+      citeprocInstance.setItems(data);
+      var citation = citeprocInstance.createCitation();
+      return citation;
+    }
+    else {
+      //fine arts
+      var citation = getFineArtsCitation(activity);
+      return citation
+    }
   };
 
   this.formatAwardText = function(activity) {

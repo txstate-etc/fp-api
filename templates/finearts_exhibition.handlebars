@@ -1,0 +1,28 @@
+<div class="finearts-exhibition">
+  {{period (italic title)}}
+
+  {{period collection-name}}
+
+  {{period date-range}}
+
+  {{#if num-artists}}
+  <div class="exhibition-artists">
+    Artists: {{num-artists}}
+  </div>
+  {{/if}}
+
+  {{#if scope}}
+  <div class="exhibition-scope">
+    ({{scope}})
+  </div>
+  {{/if}}
+
+  {{#if venues}}
+  {{>finearts_performances performances=venues performancesphrase="Schedule"}}
+  {{/if}}
+
+  {{#if reviews}}
+    {{>finearts_reviews}}
+  {{/if}}
+
+</div>

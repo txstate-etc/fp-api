@@ -1,0 +1,12 @@
+<div>
+{{performancesphrase}}:
+{{#ng-each performances~}}
+
+  {{#if this.title}}
+    {{period this.title}}
+  {{/if}}
+
+  {{#ensureperiod}}{{this.name}}{{#if this.location}}, {{this.location}}{{/if}}{{#if this.dates}}, {{this.dates}}{{/if}}{{/ensureperiod}}
+
+{{~/ng-each}}
+</div>

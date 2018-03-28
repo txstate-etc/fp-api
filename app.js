@@ -33,6 +33,8 @@ db.once('open', function() {
   console.log("DB connection alive");
 })
 
+var handlebars = require('./fp-handlebars').getInstance();
+
 app.use('/', index);
 app.use('/profile', profile);
 app.use('/department', department);
