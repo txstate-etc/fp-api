@@ -1,7 +1,8 @@
 const artTemplates = {
   "collection" : "finearts_collection",
   "exhibition" : "finearts_exhibition",
-  "galleryrepresentation" : "finearts_galleryrepresentation"
+  "galleryrepresentation" : "finearts_galleryrepresentation",
+  "musiccomposition" : "finearts_musiccompositionrecordingauthoredplay"
 }
 
 module.exports = function() {
@@ -13,7 +14,8 @@ module.exports = function() {
         return citeArtCollection(activity);
         break;
       case "ARTS_COMP":
-          break;
+        return citeArtComposition(activity);
+        break;
       case "ARTS_PROD":
         break;
       case "ARTS_RESIDENCIES":
@@ -35,15 +37,7 @@ function citeArtCollection(activity) {
   if (activity.MEDIUM) context.medium = activity.MEDIUM;
   context['date-range'] = formatArtDates(activity.DTY_START, activity.DTM_START, activity.DTD_START, activity.DTY_END, activity.DTM_END, activity.DTD_END)
   if (activity.REVIEW.length > 0) {
-    var reviews = [];
-    activity.REVIEW.forEach(function(rev) {
-      var review = {};
-      if (rev.REVIEW_TYPE) review.type = rev.REVIEW_TYPE;
-      if (rev.LNAME) review.name = buildReviewerName(rev.FNAME, rev.MNAME, rev.LNAME);
-      if (rev.TITLE) review.title = rev.TITLE
-      reviews.push(review)
-    })
-    context.reviews = reviews;
+    context.reviews = buildReviews(activity.REVIEW);
   }
   switch (activity.TYPE) {
     case "Collection":
@@ -54,16 +48,7 @@ function citeArtCollection(activity) {
       if (activity.NUM_ARTISTS) context['num-artists'] = activity.NUM_ARTISTS
       if (activity.SCOPE) context.scope = activity.SCOPE
       if (activity.VENUE.length > 0) {
-        context.venues = [];
-        activity.VENUE.forEach(function(ven) {
-          var venue = {};
-          if (ven.TITLE) venue.title = ven.TITLE;
-          if (ven.NAME) venue.name = ven.NAME;
-          if (ven.LOCATION) venue.location = ven.LOCATION;
-          var venueDates = formatArtDates(ven.DTY_START, ven.DTM_START, ven.DTD_START, ven.DTY_END, ven.DTM_END, ven.DTD_END)
-          if (venueDates) venue.dates = venueDates;
-          context.venues.push(venue)
-        })
+        context.venues = buildVenues(activity.VENUE);
       }
       template = artTemplates.exhibition;
       break;
@@ -79,6 +64,25 @@ function citeArtCollection(activity) {
     var citationTemplate = hbs.getTemplate(template);
     return citationTemplate(context)
   }
+}
+
+function citeArtComposition(activity) {
+  var context = {};
+  var template;
+  if (activity.TITLE) context.title = activity.TITLE;
+  if (activity.PUBLISHER) context.publisher = activity.PUBLISHER;
+  var year = activity.DTY_END || activity.DTY_START;
+  if (year) context.year = `${year}`;
+  if (activity.REVIEW.length > 0) {
+    context.reviews = buildReviews(activity.REVIEW);
+  }
+  if (activity.VENUE.length > 0) {
+    context.venues = buildVenues(activity.VENUE);
+  }
+  template = artTemplates.musiccomposition;
+  var hbs = require('../fp-handlebars').getInstance();
+  var citationTemplate = hbs.getTemplate(template);
+  return citationTemplate(context)
 }
 
 function formatArtDates(startYear, startMonth, startDay, endYear, endMonth, endDay) {
@@ -108,6 +112,18 @@ function buildDate(year, month, day) {
   return date;
 }
 
+function buildReviews(data) {
+  var reviews = [];
+  data.forEach(function(rev) {
+    var review = {};
+    if (rev.REVIEW_TYPE) review.type = rev.REVIEW_TYPE;
+    if (rev.LNAME) review.name = buildReviewerName(rev.FNAME, rev.MNAME, rev.LNAME);
+    if (rev.TITLE) review.title = rev.TITLE
+    reviews.push(review)
+  })
+  return reviews;
+}
+
 function buildReviewerName(first, middle, last) {
   var name = "";
   if (first) {
@@ -118,4 +134,18 @@ function buildReviewerName(first, middle, last) {
   }
   name += ` ${last}`
   return name;
+}
+
+function buildVenues(data) {
+  var venues = []
+  data.forEach(function(ven) {
+    var venue = {};
+    if (ven.TITLE) venue.title = ven.TITLE;
+    if (ven.NAME) venue.name = ven.NAME;
+    if (ven.LOCATION) venue.location = ven.LOCATION;
+    var venueDates = formatArtDates(ven.DTY_START, ven.DTM_START, ven.DTD_START, ven.DTY_END, ven.DTM_END, ven.DTD_END)
+    if (venueDates) venue.dates = venueDates;
+    venues.push(venue)
+  })
+  return venues;
 }
