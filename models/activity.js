@@ -121,7 +121,10 @@ var ActivitySchema = new Schema({
     LOCATION: String,
     DTM_END : String,
     DTD_END : Number,
-    DTY_END : Number
+    DTY_END : Number,
+    DTM_START : String,
+    DTD_START : Number,
+    DTY_START : Number
   }],
   REVIEW: [{
     FNAME : String,
