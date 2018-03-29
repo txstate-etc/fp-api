@@ -6,7 +6,7 @@
     {{period this.title}}
   {{/if}}
 
-  {{#ensureperiod}}{{this.name}}{{#if this.location}}, {{this.location}}{{/if}}{{#if this.dates}}, {{this.dates}}{{/if}}{{/ensureperiod}}
+  {{#ensureperiod}}{{this.name}}{{#if this.location}}{{#all this.name this.location}}, {{/all}}{{this.location}}{{/if}}{{#if this.dates}}, {{this.dates}}{{/if}}{{/ensureperiod}}
 
 {{~/ng-each}}
 </div>

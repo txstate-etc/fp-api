@@ -1,0 +1,12 @@
+<div class="finarts-productions">
+
+  {{#ensureperiod}}{{role}}{{#all role title}}, {{/all}} {{italic title}}{{/ensureperiod}}
+
+  {{period dates}}
+
+  {{#if venues}}
+  {{>finearts_performances performances=venues}}
+  {{/if}}
+
+  {{>finearts_reviews}}
+</div>

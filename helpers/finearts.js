@@ -2,7 +2,8 @@ const artTemplates = {
   "collection" : "finearts_collection",
   "exhibition" : "finearts_exhibition",
   "galleryrepresentation" : "finearts_galleryrepresentation",
-  "musiccomposition" : "finearts_musiccompositionrecordingauthoredplay"
+  "musiccomposition" : "finearts_musiccompositionrecordingauthoredplay",
+  "production" : "finearts_productions"
 }
 
 module.exports = function() {
@@ -17,6 +18,7 @@ module.exports = function() {
         return citeArtComposition(activity);
         break;
       case "ARTS_PROD":
+        return citeArtProduction(activity);
         break;
       case "ARTS_RESIDENCIES":
         break;
@@ -80,6 +82,34 @@ function citeArtComposition(activity) {
     context.venues = buildVenues(activity.VENUE);
   }
   template = artTemplates.musiccomposition;
+  var hbs = require('../fp-handlebars').getInstance();
+  var citationTemplate = hbs.getTemplate(template);
+  return citationTemplate(context)
+}
+
+function citeArtProduction(activity) {
+  var context = {};
+  var template = artTemplates.production;
+  if (activity.TITLE) context.title = activity.TITLE;
+  if (activity.ROLE) context.role = activity.ROLE;
+  var dates = formatArtDates(activity.DTY_START, activity.DTM_START, activity.DTD_START, activity.DTY_END, activity.DTM_END, activity.DTD_END)
+  if (dates) {
+    context.dates = dates;
+  }
+  
+  if (activity.REVIEW.length > 0) {
+    context.reviews = buildReviews(activity.REVIEW);
+  }
+  if (['Dance Performance', 'Musical Performance', 'Theatrical Production'].indexOf(activity.TYPE) > -1) {
+    context.performancesphrase = "Performances"
+  }
+  else {
+    context.performancesphrase = "Showings"
+  }
+  if (activity.VENUE.length > 0) {
+    context.venues = buildVenues(activity.VENUE);
+  }
+  //console.log(context)
   var hbs = require('../fp-handlebars').getInstance();
   var citationTemplate = hbs.getTemplate(template);
   return citationTemplate(context)
