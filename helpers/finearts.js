@@ -5,7 +5,8 @@ const artTemplates = {
   "musiccomposition" : "finearts_musiccompositionrecordingauthoredplay",
   "production" : "finearts_productions",
   "residency" : "finearts_residencies",
-  "commission" : "finearts_commissions"
+  "commission" : "finearts_commissions",
+  "review" : "finearts_catalogphotoreview"
 }
 
 module.exports = function() {
@@ -26,6 +27,7 @@ module.exports = function() {
         return citeArtResidency(activity);
         break;
       case "ARTS_REVIEWS":
+        return citeArtReview(activity);
         break;
       default:
     }
@@ -137,6 +139,29 @@ function citeArtResidency(activity) {
     if (activity.TITLE) context.title = activity.TITLE;
     if (activity.COMMISSION_ORG_TYPE) context["commission-type"] = activity.COMMISSION_ORG_TYPE;
     if (activity.MEDIUM) context.medium = activity.MEDIUM;
+  }
+  var hbs = require('../fp-handlebars').getInstance();
+  var citationTemplate = hbs.getTemplate(template);
+  return citationTemplate(context)
+}
+
+function citeArtReview(activity) {
+  var context = {};
+  var template = artTemplates.review;
+
+  if (activity.TITLE) context.title = activity.title;
+  if (activity.PUBLICATION_TITLE) context["publication-title"] = activity.PUBLICATION_TITLE;
+  if (activity.EDITION) context.edition = activity.EDITION;
+  if (activity.VOLUME) context.volume = activity.VOLUME;
+  if (activity.START_PAGE) context["start-page"] = activity.START_PAGE;
+  if (activity.END_PAGE) context["end-page"] = activity.END_PAGE;
+  if (activity.PUBLISHER_LOCATION) context["publisher-location"] = activity.PUBLISHER_LOCATION;
+  if (activity.PUBLISHER) context.publisher = activity.PUBLISHER;
+  if (activity.SCOPE) context.scope = activity.SCOPE;
+  var dates = buildDate(activity.DTY_DATE, activity.DTM_DATE, activity.DTD_DATE);
+  if (dates) context.dates = dates;
+  if (activity.REVIEW_AUTH && activity.REVIEW_AUTH.length > 0) {
+    context.reviews = buildReviews(activity.REVIEW_AUTH);
   }
   var hbs = require('../fp-handlebars').getInstance();
   var citationTemplate = hbs.getTemplate(template);

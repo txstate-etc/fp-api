@@ -1,0 +1,22 @@
+<div class="finearts-reviewcatalogphoto">
+  {{period (italic title)}}
+
+  {{period publication-title}}
+
+  {{period edition}}
+
+  {{#if volume}}Vol. {{#ensureperiod}}{{volume}}{{/ensureperiod}}{{/if}}
+
+  {{#ensureperiod}}{{start-page}}{{#all start-page end-page}} - {{/all}}{{end-page}}{{/ensureperiod}}
+
+  {{#ensureperiod}}{{publisher-location}}{{#all publisher-location publisher}}: {{/all}}{{publisher}}{{/ensureperiod}}
+
+  {{period scope}}
+
+  {{period dates}}
+
+  {{#if reviews}}
+    {{>finearts_reviews}}
+  {{/if}}
+  
+</div>

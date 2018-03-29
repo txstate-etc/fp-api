@@ -144,10 +144,19 @@ var ActivitySchema = new Schema({
   //start arts_reviews
   PUBLICATION_TITLE : String,
   PUBLISHER_LOCATION : String,
+  START_PAGE : String,
+  END_PAGE : String,
   NUM_VOLUMES : {
     type: Number,
     alias: 'number-of-volumes'
   },
+  REVIEW_AUTH: [{
+    FNAME : String,
+    MNAME : String,
+    LNAME: String,
+    TITLE : String,
+    REVIEW_TYPE : String
+  }],
   //start of awardhonor
   ORG : String,
   //start of congrant
