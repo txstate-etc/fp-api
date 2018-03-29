@@ -140,6 +140,7 @@ var ActivitySchema = new Schema({
   NAME : String,
   COMMISSION_TITLE: String,
   COMMISSION_ORG : String,
+  COMMISSION_ORG_TYPE: String,
   //start arts_reviews
   PUBLICATION_TITLE : String,
   PUBLISHER_LOCATION : String,

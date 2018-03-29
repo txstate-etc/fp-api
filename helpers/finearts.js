@@ -3,7 +3,9 @@ const artTemplates = {
   "exhibition" : "finearts_exhibition",
   "galleryrepresentation" : "finearts_galleryrepresentation",
   "musiccomposition" : "finearts_musiccompositionrecordingauthoredplay",
-  "production" : "finearts_productions"
+  "production" : "finearts_productions",
+  "residency" : "finearts_residencies",
+  "commission" : "finearts_commissions"
 }
 
 module.exports = function() {
@@ -21,6 +23,7 @@ module.exports = function() {
         return citeArtProduction(activity);
         break;
       case "ARTS_RESIDENCIES":
+        return citeArtResidency(activity);
         break;
       case "ARTS_REVIEWS":
         break;
@@ -96,7 +99,7 @@ function citeArtProduction(activity) {
   if (dates) {
     context.dates = dates;
   }
-  
+
   if (activity.REVIEW.length > 0) {
     context.reviews = buildReviews(activity.REVIEW);
   }
@@ -109,7 +112,32 @@ function citeArtProduction(activity) {
   if (activity.VENUE.length > 0) {
     context.venues = buildVenues(activity.VENUE);
   }
-  //console.log(context)
+
+  var hbs = require('../fp-handlebars').getInstance();
+  var citationTemplate = hbs.getTemplate(template);
+  return citationTemplate(context)
+}
+
+function citeArtResidency(activity) {
+  var context = {};
+  var template;
+  if (activity.LOCATION) context.location = activity.LOCATION;
+  var dates = formatArtDates(activity.DTY_START, activity.DTM_START, activity.DTD_START, activity.DTY_END, activity.DTM_END, activity.DTD_END)
+  if (dates) {
+    context.dates = dates;
+  }
+  if (activity.TYPE == "Residency") {
+    template = artTemplates.residency;
+    if (activity.NAME) context.name = activity.NAME
+    if (activity.ROLE) context.role = activity.ROLE
+  }
+  else {
+    template = artTemplates.commission;
+    if (activity.COMMISSION_TITLE) context["commission-title"] = activity.COMMISSION_TITLE;
+    if (activity.TITLE) context.title = activity.TITLE;
+    if (activity.COMMISSION_ORG_TYPE) context["commission-type"] = activity.COMMISSION_ORG_TYPE;
+    if (activity.MEDIUM) context.medium = activity.MEDIUM;
+  }
   var hbs = require('../fp-handlebars').getInstance();
   var citationTemplate = hbs.getTemplate(template);
   return citationTemplate(context)

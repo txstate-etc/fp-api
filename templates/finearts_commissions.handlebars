@@ -1,0 +1,13 @@
+<div class="finearts-commission">
+  {{period commission-title}}
+
+  {{period (italic title)}}
+
+  {{period location}}
+
+  {{period commission-type}}
+
+  {{#ensureperiod}}{{dates}}{{#if medium}}, {{medium}}{{/if}}{{/ensureperiod}}
+
+  {{>finearts_reviews}}
+</div>
