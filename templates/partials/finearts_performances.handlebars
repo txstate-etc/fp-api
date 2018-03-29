@@ -1,12 +1,18 @@
-<div>
-{{performancesphrase}}:
-{{#ng-each performances~}}
+<div class="venue">
+  <div class="venue-label">
+    {{performancesphrase}}:
+  </div>
+  <div class="venue-items">
+    <ul>
+      {{#ng-each performances~}}
+        <li>
+          {{#if this.title}}
+            {{period this.title}}
+          {{/if}}
 
-  {{#if this.title}}
-    {{period this.title}}
-  {{/if}}
-
-  {{#ensureperiod}}{{this.name}}{{#if this.location}}{{#all this.name this.location}}, {{/all}}{{this.location}}{{/if}}{{#if this.dates}}, {{this.dates}}{{/if}}{{/ensureperiod}}
-
-{{~/ng-each}}
+          {{#ensureperiod}}{{this.name}}{{#if this.location}}{{#all this.name this.location}}, {{/all}}{{this.location}}{{/if}}{{#if this.dates}}, {{this.dates}}{{/if}}{{/ensureperiod}}
+        </li>
+      {{~/ng-each}}
+    </ul>
+  </div>
 </div>

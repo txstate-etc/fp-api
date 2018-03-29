@@ -200,23 +200,13 @@ function buildReviews(data) {
   data.forEach(function(rev) {
     var review = {};
     if (rev.REVIEW_TYPE) review.type = rev.REVIEW_TYPE;
-    if (rev.LNAME) review.name = buildReviewerName(rev.FNAME, rev.MNAME, rev.LNAME);
+    if (rev.FNAME) review.fname = rev.FNAME;
+    if (rev.MNAME) review.mname = rev.MNAME;
+    if (rev.LNAME) review.lname = rev.LNAME;
     if (rev.TITLE) review.title = rev.TITLE
     reviews.push(review)
   })
   return reviews;
-}
-
-function buildReviewerName(first, middle, last) {
-  var name = "";
-  if (first) {
-    name = first;
-    if (middle) {
-      name += ` ${middle}`;
-    }
-  }
-  name += ` ${last}`
-  return name;
 }
 
 function buildVenues(data) {
