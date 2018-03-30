@@ -39,7 +39,6 @@ module.exports = function() {
     var hbs = require('../fp-handlebars').getInstance();
     var citationTemplate = hbs.getTemplate(template);
     return citationTemplate(context)
-    //return `${activity.NAME}, ${activity.ORG}. (${activity.DTY_END})`;
   }
 
   this.formatGrantText = function(activity) {

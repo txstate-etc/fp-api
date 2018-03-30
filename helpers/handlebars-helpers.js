@@ -50,26 +50,26 @@ var Helpers =  {
   daterange: function(startDate, endDate) {
     var dates = "";
     if (startDate.year && !endDate.year) {
-      dates = Helpers.buildDate(startDate.year, startDate.month, startDate.day)
+      dates = Helpers.buildDate(startDate)
       dates += " - Present";
     }
     else if (endDate.year && !startDate.year) {
-      dates = Helpers.buildDate(endDate.year, endDate.month, endDate.day)
+      dates = Helpers.buildDate(endDate)
     }
     else if (startDate.year && endDate.year) {
-      var start = Helpers.buildDate(startDate.year, startDate.month, startDate.day)
-      var end = Helpers.buildDate(endDate.year, endDate.month, endDate.day)
+      var start = Helpers.buildDate(startDate)
+      var end = Helpers.buildDate(endDate)
       return (start == end)? start : `${start} - ${end}`
     }
     return dates;
   },
-  buildDate: function(year, month, day) {
+  buildDate: function(dateObj) {
     var date = "";
-    if (month) {
-      date += `${month} `;
-      if (day) date += `${day}, `
+    if (dateObj.month) {
+      date += `${dateObj.month} `;
+      if (dateObj.day) date += `${dateObj.day}, `
     }
-    date += `${year}`
+    date += `${dateObj.year}`
     return date;
   }
 }

@@ -1,11 +1,11 @@
 <div class="finearts-collection">
   {{period (italic title)}}
 
-  {{#ensureperiod}}{{collection-name}}, {{collection-location}}{{/ensureperiod}}
+  {{#ensureperiod}}{{collection-name}}{{#all collection-name collection-location}}, {{/all}}{{collection-location}}{{/ensureperiod}}
 
   {{period collection-type}}
 
-  {{#ensureperiod}}{{date-range}}{{#if acquired-date}}, Acquired: {{acquired-date}}{{/if}}{{#if medium}}, {{medium}}{{/if}}{{/ensureperiod}}
+  {{#ensureperiod}}{{daterange startDate endDate}}{{#if acquired-date}}, Acquired: {{acquired-date}}{{/if}}{{#if medium}}, {{medium}}{{/if}}{{/ensureperiod}}
 
   {{#if reviews}}
     {{>finearts_reviews}}

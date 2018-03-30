@@ -2,7 +2,7 @@
 
   {{#ensureperiod}}{{role}}{{#all role title}}, {{/all}} {{italic title}}{{/ensureperiod}}
 
-  {{period dates}}
+  {{period (daterange startDate endDate)}}
 
   {{#if venues}}
   {{>finearts_performances performances=venues}}
