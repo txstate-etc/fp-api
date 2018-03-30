@@ -159,6 +159,7 @@ var ActivitySchema = new Schema({
   }],
   //start of awardhonor
   ORG : String,
+  NOMREC: String,
   //start of congrant
   AWARDORG : String,
   AWARDORG_OTHER : String,

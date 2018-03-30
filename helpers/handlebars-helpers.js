@@ -46,6 +46,31 @@ var Helpers =  {
 		for (var i = 1; i < arguments.length-1; i++)
 			if (filterequal(context, arguments[i])) return options.fn(this);
 		return options.inverse(this);
+  },
+  daterange: function(startDate, endDate) {
+    var dates = "";
+    if (startDate.year && !endDate.year) {
+      dates = Helpers.buildDate(startDate.year, startDate.month, startDate.day)
+      dates += " - Present";
+    }
+    else if (endDate.year && !startDate.year) {
+      dates = Helpers.buildDate(endDate.year, endDate.month, endDate.day)
+    }
+    else if (startDate.year && endDate.year) {
+      var start = Helpers.buildDate(startDate.year, startDate.month, startDate.day)
+      var end = Helpers.buildDate(endDate.year, endDate.month, endDate.day)
+      return (start == end)? start : `${start} - ${end}`
+    }
+    return dates;
+  },
+  buildDate: function(year, month, day) {
+    var date = "";
+    if (month) {
+      date += `${month} `;
+      if (day) date += `${day}, `
+    }
+    date += `${year}`
+    return date;
   }
 }
 
