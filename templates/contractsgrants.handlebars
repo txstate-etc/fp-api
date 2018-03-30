@@ -1,0 +1,19 @@
+<div class="contractgrant">
+  {{#ng-each investigators~}}
+    {{this.lname}}{{#any this.fname this.mname}}, {{/any}}{{this.fname}}{{#if this.mname}} {{this.mname}}{{/if}}{{#if this.role}} ({{this.role}}){{/if}}
+    {{~#if percent}}, Percent Contribution: {{percent}}{{/if}}
+    {{~#ng-last}}. {{else}}, {{/ng-last}}
+  {{~/ng-each}}
+
+  {{#ensureperiod}}
+    {{#if title}}{{title~}}{{#any sponsor funding-source amount}}, {{/any}}{{/if}}
+    {{#if sponsor}}{{~sponsor~}}{{#any funding-source amount}}, {{/any}}{{/if}}
+    {{#if funding-source}}{{~funding-source~}}{{#any amount}}, {{/any}}{{/if}}
+    {{#if amount}}${{~amount~}}{{/if}}
+  {{/ensureperiod}}
+  {{#anydate submitDate startDate endDate}}({{/anydate}}
+  {{~#if submitDate}}Submitted: {{buildDate submitDate}}{{#anydate startDate endDate}}, {{/anydate}}{{/if}}
+  {{~#anydate startDate endDate}}Funded: {{/anydate}}{{~daterange startDate endDate~}}
+  {{#anydate submitDate startDate endDate}}).{{/anydate}}
+  {{period type}}
+</div>
