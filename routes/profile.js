@@ -30,11 +30,12 @@ router.route('/:netId')
       //Added contact info and bio, now search for scholarly-creative
       return Activity.find({"username" : netId,
                             "doc_type" : { $in: ['INTELLCONT', 'ARTS_COLLECTIONS', 'ARTS_COMP', 'ARTS_PROD', 'ARTS_RESIDENCIES', 'ARTS_REVIEWS']},
-                            "STATUS" : 'Published'})
+                            "STATUS" : {$in : ['Published', 'Accepted / In Press', 'Completed']}})
                      .sort({"time_range" : -1})
                      .limit(5)
     })
     .then(function(publications){
+      console.log(publications)
       var citationFormat = 'apa';
       var citeproc = new Citeproc(citationFormat);
       profile.scholarly_creative = [];
@@ -51,7 +52,7 @@ router.route('/:netId')
     .then(function(awards) {
       profile.awards = [];
       for (var award of awards) {
-        var awardCitation = buildAwardCitation(award);
+        var awardCitation = formatAwardText(award);
         profile.awards.push({award: awardCitation})
       }
       //get grants
@@ -64,7 +65,7 @@ router.route('/:netId')
     .then(function(grants) {
       profile.grants = [];
       for (var grant of grants) {
-        var grantCitation = buildGrantCitation(grant);
+        var grantCitation = formatGrantText(grant);
         profile.grants.push({"grant" : grantCitation})
       }
       return Activity.find({"username": netId,
