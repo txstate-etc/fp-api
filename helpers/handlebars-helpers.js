@@ -71,6 +71,12 @@ var Helpers =  {
     }
     date += `${dateObj.year}`
     return date;
+  },
+  anydate: function() {
+    var options = arguments[arguments.length-1];
+		for (var i = 0; i < arguments.length-1; i++)
+			if (arguments[i] && !isEmptyDate(arguments[i])) return options.fn(this);
+		return options.inverse(this);
   }
 }
 
@@ -110,3 +116,7 @@ var safe_string = function(context) {
 		if (context.string) return context;
 		return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(context.trim()));
 	};
+
+var isEmptyDate = function(date) {
+  return !(date.year || date.month || date.day)
+}
