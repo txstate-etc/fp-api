@@ -7,13 +7,13 @@
     "dev": "node-dev --no-notify ./bin/www"
   },
   "dependencies": {
-    "body-parser": "~1.18.2",
-    "citeproc-js-node": "0.0.3",
-    "cookie-parser": "~1.4.3",
-    "debug": "~2.6.9",
-    "express": "~4.15.5",
-    "handlebars": "^4.0.11",
-    "mongoose": "^5.0.7",
-    "morgan": "~1.9.0"
+    "body-parser": ">=1.18.2",
+    "citeproc-js-node": ">=0.0.3",
+    "cookie-parser": ">=1.4.3",
+    "debug": "~2",
+    "express": "~4",
+    "handlebars": "~4",
+    "mongoose": "~5",
+    "morgan": "~1"
   }
 }
