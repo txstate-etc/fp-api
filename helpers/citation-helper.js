@@ -26,16 +26,10 @@ module.exports = function() {
     if (activity.NOMREC) context.nomrec = activity.NOMREC;
     if (activity.NAME) context.name = activity.NAME;
     if (activity.ORG) context.org = activity.ORG;
-    context.startDate = {
-      year: activity.DTY_START,
-      month: activity.DTM_START,
-      day: activity.DTD_START
-    }
-    context.endDate = {
-      year: activity.DTY_END,
-      month: activity.DTM_END,
-      day: activity.DTD_END
-    }
+
+    Object.assign(context, {startyear: activity.DTY_START, startmonth: activity.DTM_START, startday: activity.DTD_START});
+    Object.assign(context, {endyear: activity.DTY_END, endmonth: activity.DTM_END, endday: activity.DTD_END});
+    
     var hbs = require('../fp-handlebars').getInstance();
     var citationTemplate = hbs.getTemplate(template);
     return citationTemplate(context)
@@ -66,23 +60,14 @@ module.exports = function() {
         context["funding-source"] = activity.AWARDORG;
       }
     }
-    if (activity.AMOUNT) context.amount = activity.AMOUNT;
+    if (activity.AMOUNT) context.amount = activity.AMOUNT
+    var test;
+    context.test = test;
+    //submission date, if there is one
     if (activity.DTY_SUB)
-      context.submitDate = {
-        year: activity.DTY_SUB,
-        month: activity.DTM_SUB,
-        day: activity.DTD_SUB
-      }
-    context.startDate = {
-      year: activity.DTY_START,
-      month: activity.DTM_START,
-      day: activity.DTD_START
-    }
-    context.endDate = {
-      year: activity.DTY_END,
-      month: activity.DTM_END,
-      day: activity.DTD_END
-    }
+      Object.assign(context, {submissionyear: activity.DTY_SUB, submissionmonth: activity.DTM_SUB, submissionday: activity.DTD_SUB})
+    Object.assign(context, {startyear: activity.DTY_START, startmonth: activity.DTM_START, startday: activity.DTD_START});
+    Object.assign(context, {endyear: activity.DTY_END, endmonth: activity.DTM_END, endday: activity.DTD_END});
     if (activity.TYPE) context.type = activity.TYPE;
     var hbs = require('../fp-handlebars').getInstance();
     var citationTemplate = hbs.getTemplate(template);
@@ -90,7 +75,24 @@ module.exports = function() {
   }
 
   this.formatServiceText = function(activity) {
-    return `${activity.ORG}`;
+    var context = {};
+    var template = "service";
+    if (activity.ROLE) {
+      if (activity.ROLE == 'Other' && activity.ROLEOTHER) {
+        context.role = activity.ROLEOTHER;
+      }
+      else {
+        context.role = activity.ROLE;
+      }
+    }
+    if (activity.ORG) context.organization = activity.ORG;
+    Object.assign(context, {startyear: activity.DTY_START, startmonth: activity.DTM_START, startday: activity.DTD_START});
+    Object.assign(context, {endyear: activity.DTY_END, endmonth: activity.DTM_END, endday: activity.DTD_END});
+
+    var hbs = require('../fp-handlebars').getInstance();
+    var citationTemplate = hbs.getTemplate(template);
+    return citationTemplate(context)
+    //return `${activity.ORG}`;
   }
 
   this.buildServiceDate = function(activity) {

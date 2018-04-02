@@ -11,9 +11,11 @@
     {{#if funding-source}}{{~funding-source~}}{{#any amount}}, {{/any}}{{/if}}
     {{#if amount}}${{~amount~}}{{/if}}
   {{/ensureperiod}}
-  {{#anydate submitDate startDate endDate}}({{/anydate}}
-  {{~#if submitDate}}Submitted: {{buildDate submitDate}}{{#anydate startDate endDate}}, {{/anydate}}{{/if}}
-  {{~#anydate startDate endDate}}Funded: {{/anydate}}{{~daterange startDate endDate~}}
-  {{#anydate submitDate startDate endDate}}).{{/anydate}}
+
+  {{#any submissionyear startyear endyear}}({{/any}}
+  {{~#if submissionyear}}Submitted: {{date submissionyear submissionmonth submissionday}}{{#any startyear endyear}}, {{/any}}{{/if}}
+  {{~#any startyear endyear}}Funded: {{/any}}{{~daterange (date startyear startmonth startday) (date endyear endmonth endday)~}}
+  {{#any submissionyear startyear endyear}}).{{/any}}
+
   {{period type}}
 </div>

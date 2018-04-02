@@ -42,16 +42,8 @@ function citeArtCollection(activity) {
   if (activity.LOCATION) context["collection-location"] = activity.LOCATION;
   if (activity.COLLECTION_TYPE) context['collection-type'] = activity.COLLECTION_TYPE;
   if (activity.MEDIUM) context.medium = activity.MEDIUM;
-  context.startDate = {
-    year: activity.DTY_START,
-    month: activity.DTM_START,
-    day: activity.DTD_START
-  }
-  context.endDate = {
-    year: activity.DTY_END,
-    month: activity.DTM_END,
-    day: activity.DTD_END
-  }
+  Object.assign(context, {startyear: activity.DTY_START, startmonth: activity.DTM_START, startday: activity.DTD_START});
+  Object.assign(context, {endyear: activity.DTY_END, endmonth: activity.DTM_END, endday: activity.DTD_END});
   if (activity.REVIEW.length > 0) {
     context.reviews = buildReviews(activity.REVIEW);
   }
@@ -106,16 +98,8 @@ function citeArtProduction(activity) {
   var template = artTemplates.production;
   if (activity.TITLE) context.title = activity.TITLE;
   if (activity.ROLE) context.role = activity.ROLE;
-  context.startDate = {
-    year: activity.DTY_START,
-    month: activity.DTM_START,
-    day: activity.DTD_START
-  }
-  context.endDate = {
-    year: activity.DTY_END,
-    month: activity.DTM_END,
-    day: activity.DTD_END
-  }
+  Object.assign(context, {startyear: activity.DTY_START, startmonth: activity.DTM_START, startday: activity.DTD_START});
+  Object.assign(context, {endyear: activity.DTY_END, endmonth: activity.DTM_END, endday: activity.DTD_END});
 
   if (activity.REVIEW.length > 0) {
     context.reviews = buildReviews(activity.REVIEW);
@@ -138,16 +122,8 @@ function citeArtResidency(activity) {
   var context = {};
   var template;
   if (activity.LOCATION) context.location = activity.LOCATION;
-  context.startDate = {
-    year: activity.DTY_START,
-    month: activity.DTM_START,
-    day: activity.DTD_START
-  }
-  context.endDate = {
-    year: activity.DTY_END,
-    month: activity.DTM_END,
-    day: activity.DTD_END
-  }
+  Object.assign(context, {startyear: activity.DTY_START, startmonth: activity.DTM_START, startday: activity.DTD_START});
+  Object.assign(context, {endyear: activity.DTY_END, endmonth: activity.DTM_END, endday: activity.DTD_END});
   if (activity.TYPE == "Residency") {
     template = artTemplates.residency;
     if (activity.NAME || activity.TITLE) context.name = activity.NAME || activity.TITLE
@@ -177,11 +153,7 @@ function citeArtReview(activity) {
   if (activity.END_PAGE) context["end-page"] = activity.END_PAGE;
   if (activity.PUBLISHER_LOCATION) context["publisher-location"] = activity.PUBLISHER_LOCATION;
   if (activity.PUBLISHER) context.publisher = activity.PUBLISHER;
-  context.reviewDate = {
-    year: activity.DTY_DATE,
-    month: activity.DTM_DATE,
-    day: activity.DTD_DATE
-  }
+  Object.assign(context, {reviewyear: activity.DTY_DATE, reviewmonth: activity.DTM_DATE, reviewday: activity.DTD_DATE});
   if (activity.SCOPE) context.scope = activity.SCOPE;
   if (activity.REVIEW_AUTH && activity.REVIEW_AUTH.length > 0) {
     context.reviews = buildReviews(activity.REVIEW_AUTH);
@@ -212,16 +184,8 @@ function buildVenues(data) {
     if (ven.TITLE) venue.title = ven.TITLE;
     if (ven.NAME) venue.name = ven.NAME;
     if (ven.LOCATION) venue.location = ven.LOCATION;
-    venue.startDate = {
-      year: ven.DTY_START,
-      month: ven.DTM_START,
-      day: ven.DTD_START
-    }
-    venue.endDate = {
-      year: ven.DTY_END,
-      month: ven.DTM_END,
-      day: ven.DTD_END
-    }
+    Object.assign(venue, {startyear: ven.DTY_START, startmonth: ven.DTM_START, startday: ven.DTD_START});
+    Object.assign(venue, {endyear: ven.DTY_END, endmonth: ven.DTM_END, endday: ven.DTD_END});
     venues.push(venue)
   })
   return venues;

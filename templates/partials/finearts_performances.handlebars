@@ -9,7 +9,7 @@
           {{#if this.title}}
             {{period this.title}}
           {{/if}}
-          {{daterange this.startDate this.endDate}}
+          {{daterange (date this.startyear this.startmonth this.startday) (date this.endyear this.endmonth this.endday)}}
           {{#ensureperiod}}{{this.name}}{{#if this.location}}{{#all this.name this.location}}, {{/all}}{{this.location}}{{/if}}{{#any this.startDate this.endDate}}, {{daterange this.startDate this.endDate}}{{/any}}{{/ensureperiod}}
         </li>
       {{~/ng-each}}

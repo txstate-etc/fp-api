@@ -29,7 +29,7 @@ var Helpers =  {
   any: function() {
     var options = arguments[arguments.length-1];
 		for (var i = 0; i < arguments.length-1; i++)
-			if (arguments[i] && arguments[i].length > 0) return options.fn(this);
+      if (arguments[i] && arguments[i].length > 0) return options.fn(this);
 		return options.inverse(this);
   },
   firstof: function() {
@@ -47,29 +47,24 @@ var Helpers =  {
 			if (filterequal(context, arguments[i])) return options.fn(this);
 		return options.inverse(this);
   },
-  daterange: function(startDate, endDate) {
-    var dates = "";
-    if (startDate.year && !endDate.year) {
-      dates = Helpers.buildDate(startDate)
-      dates += " - Present";
+  daterange: function (startdate, enddate) {
+    if (startdate && !enddate) {
+      return `${startdate} - Present`
     }
-    else if (endDate.year && !startDate.year) {
-      dates = Helpers.buildDate(endDate)
+    else if (enddate.length > 0 && startdate.length == 0) {
+      return enddate;
     }
-    else if (startDate.year && endDate.year) {
-      var start = Helpers.buildDate(startDate)
-      var end = Helpers.buildDate(endDate)
-      return (start == end)? start : `${start} - ${end}`
-    }
-    return dates;
+    else if (startdate.length > 0 && enddate.length > 0)
+      return (startdate == enddate)? startdate : `${startdate} - ${enddate}`
   },
-  buildDate: function(dateObj) {
+  date: function(year, month, day) {
+    if (!year) return "";
     var date = "";
-    if (dateObj.month) {
-      date += `${dateObj.month} `;
-      if (dateObj.day) date += `${dateObj.day}, `
+    if (month) {
+      date += `${month} `;
+      if (day) date += `${day}, `
     }
-    date += `${dateObj.year}`
+    date += `${year}`
     return date;
   },
   anydate: function() {

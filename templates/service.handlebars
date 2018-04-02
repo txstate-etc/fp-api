@@ -1,0 +1,6 @@
+<div class="service">
+
+  {{#ensureperiod}}{{role}}, {{organization}}{{/ensureperiod}}
+
+  {{period (daterange (date startyear startmonth startday) (date endyear endmonth endday))}}
+</div>
