@@ -20,14 +20,19 @@ router.route('/:netId')
       profile.display_name += (person.MNAME) ? `${person.MNAME} ` : "";
       profile.display_name += (person.LNAME) ? `${person.LNAME}` : "";
       profile.email = person.EMAIL;
-      profile.biography = person.BIO;
-      profile.teaching_interests = person.TEACHING_INTERESTS;
-      profile.research_interests = person.RESEARCH_INTERESTS;
       profile.office_location = "";
       profile.office_location += (person.BUILDING) ? `${person.BUILDING} ` : "";
       profile.office_location += (person.ROOMNUM) ? `${person.ROOMNUM}` : "";
       profile.phone_number = `(${person.OPHONE1}) ${person.OPHONE2}-${person.OPHONE3}`
-      //Added contact info and bio, now search for scholarly-creative
+      return Activity.findOne({"username" : netId, "doc_type" : "PROFILE"})
+    })
+    .then(function(bio) {
+      if (bio) {
+        profile.biography = bio.BIO;
+        profile.teaching_interests = bio.TEACHING_INTERESTS;
+        profile.research_interests = bio.RESEARCH_INTERESTS;
+      }
+      //Added bio, now search for scholarly-creative
       return Activity.find({"username" : netId,
                             "doc_type" : { $in: ['INTELLCONT', 'ARTS_COLLECTIONS', 'ARTS_COMP', 'ARTS_PROD', 'ARTS_RESIDENCIES', 'ARTS_REVIEWS']},
                             "STATUS" : {$in : ['Published', 'Accepted / In Press', 'Completed']}})
@@ -35,7 +40,6 @@ router.route('/:netId')
                      .limit(5)
     })
     .then(function(publications){
-      console.log(publications)
       var citationFormat = 'apa';
       var citeproc = new Citeproc(citationFormat);
       profile.scholarly_creative = [];

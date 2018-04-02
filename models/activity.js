@@ -177,6 +177,10 @@ var ActivitySchema = new Schema({
   CITY : String,
   STATE : String,
   COUNTRY : String,
+  //profile
+  BIO : String,
+  RESEARCH_INTERESTS : String,
+  TEACHING_INTERESTS : String
 });
 
 module.exports = mongoose.model('Activity', ActivitySchema);

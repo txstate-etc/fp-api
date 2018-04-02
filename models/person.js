@@ -4,9 +4,6 @@ var Schema = mongoose.Schema;
 
 //TODO: Add more fields once they are known
 var PersonSchema = new Schema({
-  BIO : String,
-  RESEARCH_INTERESTS : String,
-  TEACHING_INTERESTS : String,
   username : String,
   PREFIX : String,
   FNAME : String,
