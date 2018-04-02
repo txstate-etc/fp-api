@@ -14,7 +14,16 @@ var PersonSchema = new Schema({
   ROOMNUM: String,
   OPHONE1: String,
   OPHONE2: String,
-  OPHONE3: String
+  OPHONE3: String,
+  DPHONE1: String,
+  DPHONE2: String,
+  DPHONE3: String,
+  col_deps: [{
+    college: String,
+    department: String,
+    title: String,
+    is_academic: Boolean
+  }]
 });
 
 module.exports = mongoose.model('Person', PersonSchema);
