@@ -18,11 +18,13 @@ var PersonSchema = new Schema({
   DPHONE1: String,
   DPHONE2: String,
   DPHONE3: String,
-  col_deps: [{
-    college: String,
-    department: String,
-    title: String,
-    is_academic: Boolean
+  positions: [{
+    title : String,
+    organization : {
+      college: String,
+      department: String,
+      is_academic: Boolean
+    }
   }]
 });
 
