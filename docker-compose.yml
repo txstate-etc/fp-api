@@ -10,6 +10,13 @@ services:
       - mongodb
     depends_on:
       - mongodb
+  mongo-seed:
+    build: ./mongo-seed
+    restart: on-failure
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
   mongodb:
     image: mongo:latest
     volumes:

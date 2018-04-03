@@ -1,0 +1,75 @@
+[{
+	"_id" : ObjectId("5aa00e1396f30e78b92369dc"),
+	"lastModified" : "2017-01-27T08:17:03",
+	"username" : "tu01",
+  "user_id" :"4523685",
+	"doc_type" : "PCI",
+	"positions": [
+	  {
+	    "organization": {
+        "college": "Test College",
+        "department": "Test Department",
+        "is_academic": true
+			},
+      "title": "Professor Emeritus"
+		}
+	],
+	"PREFIX" : "Dr.",
+	"FNAME" : "John",
+	"MNAME" : "Jacob",
+	"LNAME" : "Smith",
+	"EMAIL" : "tu01@txstate.edu",
+	"WEBSITE" : "www.test.com",
+	"BUILDING" : "BDG",
+	"ROOMNUM" : "001",
+	"OPHONE1" : "512",
+	"OPHONE2" : "555",
+	"OPHONE3" : "1313",
+	"DPHONE1" : "512",
+	"DPHONE2" : "555",
+	"DPHONE3" : "1212",
+	"DTM_DOB" : "Jan",
+	"DTD_DOB" : 15,
+	"DTY_DOB" : 1970
+},{
+	"_id" : ObjectId("2abd0e1396e30e78b06369fa"),
+	"lastModified" : "2017-03-28T08:17:03",
+	"username" : "tu02",
+  "user_id" :"7681536",
+	"doc_type" : "PCI",
+  "positions": [
+    {
+      "organization": {
+        "college": "Test College 2",
+        "department": "Test Department 2",
+        "is_academic": true
+      },
+      "title": "Visiting Professor"
+    },
+    {
+      "organization": {
+        "college": "",
+        "department": "Experimental Laboratory",
+        "is_academic": false
+      },
+      "title": "Lab Coordinator"
+    }
+  ],
+	"PREFIX" : "Dr.",
+	"FNAME" : "Jane",
+	"MNAME" : "Sue",
+	"LNAME" : "Doe",
+	"EMAIL" : "tu02@txstate.edu",
+	"WEBSITE" : "www.test2.com",
+	"BUILDING" : "BDG",
+	"ROOMNUM" : "002",
+	"OPHONE1" : "512",
+	"OPHONE2" : "555",
+	"OPHONE3" : "1414",
+	"DPHONE1" : "512",
+	"DPHONE2" : "555",
+	"DPHONE3" : "1515",
+	"DTM_DOB" : "Dec",
+	"DTD_DOB" : 15,
+	"DTY_DOB" : 1971
+}]
