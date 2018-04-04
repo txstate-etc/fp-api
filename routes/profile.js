@@ -19,6 +19,13 @@ router.route('/:netId')
       profile.display_name += (person.FNAME) ? `${person.FNAME} ` : "";
       profile.display_name += (person.MNAME) ? `${person.MNAME} ` : "";
       profile.display_name += (person.LNAME) ? `${person.LNAME}` : "";
+      if (person.positions && person.positions.length > 0) {
+        profile.positions = [];
+        person.positions.forEach(function(position) {
+          console.log(position)
+          profile.positions.push({"title" : position.title, "department": position.organization.department})
+        })
+      }
       profile.email = person.EMAIL;
       profile.office_location = "";
       profile.office_location += (person.BUILDING) ? `${person.BUILDING} ` : "";
