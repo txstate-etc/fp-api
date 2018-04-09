@@ -1,6 +1,8 @@
 //schema for activities (scholarly/creative, service, awards, grants)
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+require('../helpers/citation-helper.js')();
+var Citeproc = require('../citeproc-engine.js');
 
 //NOTES
 // * DM uses 'PUBLISHER' for the venue of a book review. What does CSL use? PUBLISHER might have 2 different meanings, depending on content type
@@ -182,5 +184,27 @@ var ActivitySchema = new Schema({
   RESEARCH_INTERESTS : String,
   TEACHING_INTERESTS : String
 });
+
+ActivitySchema.methods.translate = function () {
+  var activity = this;
+  var ret = {};
+  if (['INTELLCONT', 'ARTS_COLLECTIONS', 'ARTS_COMP', 'ARTS_PROD', 'ARTS_RESIDENCIES', 'ARTS_REVIEWS'].indexOf(activity.doc_type) > -1) {
+    var citeproc = new Citeproc('apa');
+    ret.full_description = buildScholarlyCreativeCitation(activity, new Citeproc('apa'))
+  } else if (['AWARDHONOR'].indexOf(activity.doc_type) > -1) {
+    ret.full_description = formatAwardText(activity);
+  } else if (['CONGRANT'].indexOf(activity.doc_type) > -1) {
+    ret.full_description = formatGrantText(activity);
+  } else if (['SERVICE_PROFESSIONAL', 'SERVICE_UNIVERSITY', 'SERVICE_PUBLIC'].indexOf(activity.doc_type) > -1) {
+    ret.role = activity.ROLE || "Role Not Specified";
+    if (activity.ROLE == "Other") ret.role = activity.ROLEOTHER || "Role Not Specified";
+    ret.organization = activity.ORG;
+    ret.city = activity.CITY;
+    ret.state = activity.STATE;
+    ret.service_period = buildServiceDate(activity);
+    ret.full_description = formatServiceText(activity);
+  }
+  return ret;
+}
 
 module.exports = mongoose.model('Activity', ActivitySchema);

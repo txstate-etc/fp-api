@@ -47,13 +47,7 @@ router.route('/:netId')
                      .limit(5)
     })
     .then(function(publications){
-      var citationFormat = 'apa';
-      var citeproc = new Citeproc(citationFormat);
-      profile.scholarly_creative = [];
-      for (var pub of publications) {
-        var citation = buildScholarlyCreativeCitation(pub, citeproc);
-        profile.scholarly_creative.push({"citation" : citation})
-      }
+      profile.scholarly_creative = publications.map(function (activity) { return activity.translate() });
       //now get awards
       return Activity.find({"username" : netId,
                             "doc_type" : 'AWARDHONOR'})
@@ -61,11 +55,7 @@ router.route('/:netId')
                      .limit(5)
     })
     .then(function(awards) {
-      profile.awards = [];
-      for (var award of awards) {
-        var awardCitation = formatAwardText(award);
-        profile.awards.push({award: awardCitation})
-      }
+      profile.awards = awards.map(function (activity) { return activity.translate() });
       //get grants
       return Activity.find({"username" : netId,
                             "doc_type" : 'CONGRANT'})
@@ -74,34 +64,15 @@ router.route('/:netId')
 
     })
     .then(function(grants) {
-      profile.grants = [];
-      for (var grant of grants) {
-        var grantCitation = formatGrantText(grant);
-        profile.grants.push({"grant" : grantCitation})
-      }
+      profile.grants = grants.map(function (activity) { return activity.translate() });
       return Activity.find({"username": netId,
                             "doc_type" : {$in : ['SERVICE_PUBLIC', 'SERVICE_UNIVERSITY', 'SERVICE_PROFESSIONAL']}})
                      .sort({"time_range" : -1})
                      .limit(5)
     })
     .then(function(service_activities) {
-      profile.service_activities = [];
-      for (var activity of service_activities) {
-        var role = activity.ROLE;
-        if (!role) {
-          role = "Role Not Specified";
-        }
-        else if (role == "Other") {
-          role = activity.ROLEOTHER || "Role Not Specified"
-        }
-        profile.service_activities.push({
-          role: role,
-          organization: activity.ORG,
-          city: activity.CITY,
-          state: activity.STATE,
-          service_period: buildServiceDate(activity)
-        })
-      }
+      profile.service_activities = service_activities.map(function (activity) { return activity.translate() });
+
       //don't leave this here
       res.header("Access-Control-Allow-Origin", "*");
       res.json(profile)
