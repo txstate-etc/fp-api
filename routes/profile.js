@@ -10,8 +10,37 @@ router.route('/:netId')
     var Person = require('../models/person');
     var Activity = require('../models/activity');
     var profile = {};
-    return Person.findOne({"username" : netId})
-    .then(function(person) {
+
+    Promise.all([
+      Person.findOne({"username" : netId}),
+
+      Activity.findOne({"username" : netId, "doc_type" : "PROFILE"}),
+
+      Activity.find({
+        "username" : netId,
+        "doc_type" : { $in: Activity.types_scholarly },
+        "STATUS" : {$in : ['Published', 'Accepted / In Press', 'Completed']}
+      }).sort({"time_range" : -1}).limit(5),
+
+      Activity.find({
+        "username" : netId,
+        "doc_type" : { $in: Activity.types_award }
+      }).sort({"time_range" : -1}).limit(5),
+
+      Activity.find({
+        "username" : netId,
+        "doc_type" : { $in: Activity.types_grant }
+      }).sort({"time_range" : -1}).limit(5),
+
+      Activity.find({
+        "username": netId,
+        "doc_type" : { $in: Activity.types_service }
+      }).sort({"time_range" : -1}).limit(5)
+    ]).then(function (results) {
+      var person, bio, publications, awards, grants, service;
+      [person, bio, publications, awards, grants, service] = results;
+
+      // person
       profile.faculty_id = person.username;
       //TODO: Move name, phone number, and office construction out of here
       profile.display_name = "";
@@ -31,49 +60,27 @@ router.route('/:netId')
       profile.office_location += (person.BUILDING) ? `${person.BUILDING} ` : "";
       profile.office_location += (person.ROOMNUM) ? `${person.ROOMNUM}` : "";
       profile.phone_number = `(${person.OPHONE1}) ${person.OPHONE2}-${person.OPHONE3}`
-      return Activity.findOne({"username" : netId, "doc_type" : "PROFILE"})
-    })
-    .then(function(bio) {
+
+      // bio
       if (bio) {
         profile.biography = bio.BIO;
         profile.teaching_interests = bio.TEACHING_INTERESTS;
         profile.research_interests = bio.RESEARCH_INTERESTS;
       }
-      //Added bio, now search for scholarly-creative
-      return Activity.find({"username" : netId,
-                            "doc_type" : { $in: Activity.types_scholarly },
-                            "STATUS" : {$in : ['Published', 'Accepted / In Press', 'Completed']}})
-                     .sort({"time_range" : -1})
-                     .limit(5)
-    })
-    .then(function(publications){
+
+      // publications
       profile.scholarly_creative = publications.map(function (activity) { return activity.translate() });
-      //now get awards
-      return Activity.find({"username" : netId,
-                            "doc_type" : { $in: Activity.types_award }})
-                     .sort({"time_range" : -1})
-                     .limit(5)
-    })
-    .then(function(awards) {
+
+      // awards
       profile.awards = awards.map(function (activity) { return activity.translate() });
-      //get grants
-      return Activity.find({"username" : netId,
-                            "doc_type" : { $in: Activity.types_grant }})
-                     .sort({"time_range" : -1})
-                     .limit(5)
 
-    })
-    .then(function(grants) {
+      // grants
       profile.grants = grants.map(function (activity) { return activity.translate() });
-      return Activity.find({"username": netId,
-                            "doc_type" : { $in: Activity.types_service }})
-                     .sort({"time_range" : -1})
-                     .limit(5)
-    })
-    .then(function(service_activities) {
-      profile.service_activities = service_activities.map(function (activity) { return activity.translate() });
 
-      //don't leave this here
+      // service
+      profile.service_activities = service.map(function (activity) { return activity.translate() });
+
+      // return
       res.header("Access-Control-Allow-Origin", "*");
       res.json(profile)
     })
