@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var index = require('./routes/index');
 var profile = require('./routes/profile');
 var department = require('./routes/department');
+var search = require('./routes/search');
 
 var app = express();
 
@@ -43,6 +44,7 @@ var handlebars = require('./fp-handlebars').getInstance();
 app.use('/', index);
 app.use('/profile', profile);
 app.use('/department', department);
+app.use('/search', search);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

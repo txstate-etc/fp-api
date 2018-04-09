@@ -185,6 +185,8 @@ var ActivitySchema = new Schema({
   TEACHING_INTERESTS : String
 });
 
+ActivitySchema.index({ '$**' : 'text' });
+
 var types_scholarly = ['INTELLCONT', 'ARTS_COLLECTIONS', 'ARTS_COMP', 'ARTS_PROD', 'ARTS_RESIDENCIES', 'ARTS_REVIEWS'];
 ActivitySchema.statics.types_scholarly = types_scholarly;
 var types_award = ['AWARDHONOR'];
