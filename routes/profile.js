@@ -41,7 +41,7 @@ router.route('/:netId')
       }
       //Added bio, now search for scholarly-creative
       return Activity.find({"username" : netId,
-                            "doc_type" : { $in: ['INTELLCONT', 'ARTS_COLLECTIONS', 'ARTS_COMP', 'ARTS_PROD', 'ARTS_RESIDENCIES', 'ARTS_REVIEWS']},
+                            "doc_type" : { $in: Activity.types_scholarly },
                             "STATUS" : {$in : ['Published', 'Accepted / In Press', 'Completed']}})
                      .sort({"time_range" : -1})
                      .limit(5)
@@ -50,7 +50,7 @@ router.route('/:netId')
       profile.scholarly_creative = publications.map(function (activity) { return activity.translate() });
       //now get awards
       return Activity.find({"username" : netId,
-                            "doc_type" : 'AWARDHONOR'})
+                            "doc_type" : { $in: Activity.types_award }})
                      .sort({"time_range" : -1})
                      .limit(5)
     })
@@ -58,7 +58,7 @@ router.route('/:netId')
       profile.awards = awards.map(function (activity) { return activity.translate() });
       //get grants
       return Activity.find({"username" : netId,
-                            "doc_type" : 'CONGRANT'})
+                            "doc_type" : { $in: Activity.types_grant }})
                      .sort({"time_range" : -1})
                      .limit(5)
 
@@ -66,7 +66,7 @@ router.route('/:netId')
     .then(function(grants) {
       profile.grants = grants.map(function (activity) { return activity.translate() });
       return Activity.find({"username": netId,
-                            "doc_type" : {$in : ['SERVICE_PUBLIC', 'SERVICE_UNIVERSITY', 'SERVICE_PROFESSIONAL']}})
+                            "doc_type" : { $in: Activity.types_service }})
                      .sort({"time_range" : -1})
                      .limit(5)
     })
@@ -95,16 +95,16 @@ router.route('/:netId/activity/:type')
     conditions.username = netId;
     switch(type) {
         case 'scholarly-creative':
-          conditions.doc_type = { $in: ['INTELLCONT', 'ARTS_COLLECTIONS', 'ARTS_COMP', 'ARTS_PROD', 'ARTS_RESIDENCIES', 'ARTS_REVIEWS']}
+          conditions.doc_type = { $in: Activity.types_scholarly }
           break;
         case 'awards':
-          conditions.doc_type = 'AWARDHONOR'
+          conditions.doc_type = { $in: Activity.types_award }
           break;
         case 'grants':
-          conditions.doc_type = 'CONGRANT'
+          conditions.doc_type = { $in: Activity.types_grant }
           break;
         case 'service':
-          conditions.doc_type = { $in: ['SERVICE_PROFESSIONAL', 'SERVICE_UNIVERSITY', 'SERVICE_PUBLIC']}
+          conditions.doc_type = { $in: Activity.types_service }
           break;
         default:
         //what would the default be?

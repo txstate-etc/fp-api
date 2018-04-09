@@ -185,17 +185,26 @@ var ActivitySchema = new Schema({
   TEACHING_INTERESTS : String
 });
 
+var types_scholarly = ['INTELLCONT', 'ARTS_COLLECTIONS', 'ARTS_COMP', 'ARTS_PROD', 'ARTS_RESIDENCIES', 'ARTS_REVIEWS'];
+ActivitySchema.statics.types_scholarly = types_scholarly;
+var types_award = ['AWARDHONOR'];
+ActivitySchema.statics.types_award = types_award;
+var types_grant = ['CONGRANT'];
+ActivitySchema.statics.types_grant = types_grant;
+var types_service = ['SERVICE_PROFESSIONAL', 'SERVICE_UNIVERSITY', 'SERVICE_PUBLIC'];
+ActivitySchema.statics.types_service = types_service;
+
 ActivitySchema.methods.translate = function () {
   var activity = this;
   var ret = {};
-  if (['INTELLCONT', 'ARTS_COLLECTIONS', 'ARTS_COMP', 'ARTS_PROD', 'ARTS_RESIDENCIES', 'ARTS_REVIEWS'].indexOf(activity.doc_type) > -1) {
+  if (types_scholarly.indexOf(activity.doc_type) > -1) {
     var citeproc = new Citeproc('apa');
     ret.full_description = buildScholarlyCreativeCitation(activity, new Citeproc('apa'))
-  } else if (['AWARDHONOR'].indexOf(activity.doc_type) > -1) {
+  } else if (types_award.indexOf(activity.doc_type) > -1) {
     ret.full_description = formatAwardText(activity);
-  } else if (['CONGRANT'].indexOf(activity.doc_type) > -1) {
+  } else if (types_grant.indexOf(activity.doc_type) > -1) {
     ret.full_description = formatGrantText(activity);
-  } else if (['SERVICE_PROFESSIONAL', 'SERVICE_UNIVERSITY', 'SERVICE_PUBLIC'].indexOf(activity.doc_type) > -1) {
+  } else if (types_service.indexOf(activity.doc_type) > -1) {
     ret.role = activity.ROLE || "Role Not Specified";
     if (activity.ROLE == "Other") ret.role = activity.ROLEOTHER || "Role Not Specified";
     ret.organization = activity.ORG;
