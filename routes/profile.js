@@ -100,6 +100,7 @@ router.route('/:netId/activity/:type')
     var citationBuilder;
     console.log(`getting ${type} for ${netId}`)
     conditions.username = netId;
+    var Activity = require('../models/activity');
     switch(type) {
         case 'scholarly-creative':
           conditions.doc_type = { $in: Activity.types_scholarly }
@@ -116,7 +117,6 @@ router.route('/:netId/activity/:type')
         default:
         //what would the default be?
     }
-    var Activity = require('../models/activity');
     Activity.find(conditions)
       .sort({"time_range" : -1})
       .then(function(activities) {
