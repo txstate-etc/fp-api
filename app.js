@@ -9,6 +9,8 @@ var profile = require('./routes/profile');
 var department = require('./routes/department');
 var search = require('./routes/search');
 
+require('./helpers/extensions.js');
+
 var app = express();
 
 app.use(logger('dev'));

@@ -28,4 +28,16 @@ var PersonSchema = new Schema({
   }]
 });
 
+PersonSchema.methods.basic_info = function () {
+  var ret = {};
+  var person = this;
+  ret.userid = person.username;
+  ret.display_name = "";
+  ret.display_name += (person.PREFIX) ? `${person.PREFIX} ` : "";
+  ret.display_name += (person.FNAME) ? `${person.FNAME} ` : "";
+  ret.display_name += (person.MNAME) ? `${person.MNAME} ` : "";
+  ret.display_name += (person.LNAME) ? `${person.LNAME}` : "";
+  return ret;
+}
+
 module.exports = mongoose.model('Person', PersonSchema);
