@@ -16,6 +16,12 @@ Object.defineProperty(Array.prototype, "hash_by_keyname", {
   }
 });
 
+Object.defineProperty(Object.prototype, "emptyHash", {
+  value: function () {
+    return Object.getOwnPropertyNames(this).length == 0;
+  }
+});
+
 RegExp.quote = function (str) {
   return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
