@@ -28,6 +28,11 @@ var PersonSchema = new Schema({
   }]
 });
 
+PersonSchema.index({username: 1});
+PersonSchema.index({FNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
+PersonSchema.index({LNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
+PersonSchema.index({MNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
+
 PersonSchema.methods.basic_info = function () {
   var ret = {};
   var person = this;
