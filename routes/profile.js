@@ -2,13 +2,13 @@ var express = require('express');
 var router = express.Router();
 require('../helpers/citation-helper.js')();
 var Citeproc = require('../citeproc-engine.js');
+var Person = require('../models/person');
+var Activity = require('../models/activity');
 
 //If the route is /person/netID, build and return the profile for the faculty member
 router.route('/:netId')
   .get(function(req, res, next) {
     var netId = req.params.netId
-    var Person = require('../models/person');
-    var Activity = require('../models/activity');
     var profile = {};
 
     Promise.all([
@@ -100,7 +100,6 @@ router.route('/:netId/activity/:type')
     var citationBuilder;
     console.log(`getting ${type} for ${netId}`)
     conditions.username = netId;
-    var Activity = require('../models/activity');
     switch(type) {
         case 'scholarly-creative':
           conditions.doc_type = { $in: Activity.types_scholarly }
