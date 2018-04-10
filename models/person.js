@@ -32,11 +32,21 @@ PersonSchema.methods.basic_info = function () {
   var ret = {};
   var person = this;
   ret.userid = person.username;
+
   ret.display_name = "";
   ret.display_name += (person.PREFIX) ? `${person.PREFIX} ` : "";
   ret.display_name += (person.FNAME) ? `${person.FNAME} ` : "";
   ret.display_name += (person.MNAME) ? `${person.MNAME} ` : "";
   ret.display_name += (person.LNAME) ? `${person.LNAME}` : "";
+
+  ret.primary_title = "";
+  if (person.positions && person.positions.length > 0 && person.positions[0].title)
+    ret.primary_title = person.positions[0].title;
+
+  ret.primary_department = "";
+  if (person.positions && person.positions.length > 0 && person.positions[0].organization && person.positions[0].organization.department)
+    ret.primary_department = person.positions[0].organization.department;
+
   return ret;
 }
 
