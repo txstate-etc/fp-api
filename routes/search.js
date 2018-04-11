@@ -29,17 +29,27 @@ router.route('/name')
 
 router.route('/publication')
   .get(function(req, res, next) {
-    var query = req.query.q || '';
-    lookup_activity({ $text: { $search: query } }, common_filters(req.query))
-    .then(function (ret) {
-      res.header("Access-Control-Allow-Origin", "*");
-      res.json(ret);
-    })
-    .catch(function(err){
-      console.log(err)
-      next(err)
-    });
+    search_activity(req, res, next, {"doc_type" : { $in: Activity.types_scholarly }})
   });
+
+router.route('/grant')
+  .get(function(req, res, next) {
+    search_activity(req, res, next, {"doc_type" : { $in: Activity.types_grant }})
+  });
+
+var search_activity = function (req, res, next, activity_filters) {
+  var query = req.query.q || '';
+  activity_filters['$text'] = { $search: query };
+  lookup_activity(activity_filters, common_filters(req.query))
+  .then(function (ret) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.json(ret);
+  })
+  .catch(function(err){
+    console.log(err)
+    next(err)
+  });
+}
 
 var lookup_activity = async function(activity_filters, person_filters) {
   var filtered_userids = [];
