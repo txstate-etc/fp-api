@@ -48,8 +48,9 @@ router.route('/service')
 
 var search_activity = function (req, res, next, activity_filters) {
   var query = req.query.q || '';
+  var [skip, limit] = skip_limit(req.query);
   activity_filters['$text'] = { $search: query };
-  lookup_activity(activity_filters, common_filters(req.query))
+  lookup_activity(activity_filters, common_filters(req.query), skip, limit)
   .then(function (ret) {
     res.header("Access-Control-Allow-Origin", "*");
     res.json(ret);
@@ -61,9 +62,9 @@ var search_activity = function (req, res, next, activity_filters) {
 }
 
 var search_person = function (req, res, next, person_filters) {
+  var [skip, limit] = skip_limit(req.query);
   person_filters.mergeHash(common_filters(req.query));
-  console.log(person_filters['$or']);
-  Person.find(person_filters)
+  Person.find(person_filters).skip(skip).limit(limit)
   .then(function (people) {
     var ret = people.map(function (person) { return person.basic_info(); });
     res.header("Access-Control-Allow-Origin", "*");
@@ -75,7 +76,7 @@ var search_person = function (req, res, next, person_filters) {
   });
 }
 
-var lookup_activity = async function(activity_filters, person_filters) {
+var lookup_activity = async function(activity_filters, person_filters, skip = 0, limit = 100) {
   var filtered_userids = [];
   if (!person_filters.emptyHash()) {
     var people = await Person.find(person_filters, 'username');
@@ -83,7 +84,7 @@ var lookup_activity = async function(activity_filters, person_filters) {
   }
   if (filtered_userids.length > 0) activity_filters['username'] = { $in: filtered_userids };
 
-  var acts = await Activity.find(activity_filters);
+  var acts = await Activity.find(activity_filters).skip(skip).limit(limit);
   var userids = acts.distinct(function (act) { return act.username });
   var people = await Person.find({ username: { $in : userids } });
 
@@ -101,30 +102,41 @@ var lookup_activity = async function(activity_filters, person_filters) {
 
 var lookup_all = async function (query) {
   var person_filters = common_filters(query).mergeHash(name_filters(query.q));
-  var [people, activities] = await Promise.all([
-    Person.find(person_filters),
-    lookup_activity({ $text: { $search: query.q || '' } }, common_filters(query))
+  var [skip, limit] = skip_limit(query);
+  var [people_count, people, interest_count, interest, publication_count, publication, grant_count, grant, award_count, award] = await Promise.all([
+    Person.find(person_filters).count(),
+    Person.find(person_filters).limit(limit),
+    Activity.find({ $text: { $search: query.q || '' }, 'doc_type': Activity.type_profile }).count(),
+    lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': Activity.type_profile }, common_filters(query), 0, limit),
+    Activity.find({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_scholarly } }).count(),
+    lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_scholarly } }, common_filters(query), 0, limit),
+    Activity.find({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_grant } }).count(),
+    lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_grant } }, common_filters(query), 0, limit),
+    Activity.find({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_award } }).count(),
+    lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_award } }, common_filters(query), 0, limit),
   ]);
 
-  var [publication, interest, grant, award] = [[],[],[],[]];
-  activities.forEach(function (act) {
-    if (act.type == 'profile') {
-      interest.push(act);
-    } else if (act.type == 'scholarly') {
-      publication.push(act);
-    } else if (act.type == 'award') {
-      award.push(act);
-    } else if (act.type == 'grant') {
-      grant.push(act);
-    }
-  });
-
   return {
-    name: people,
-    publication: publication,
-    interest: interest,
-    grant: grant,
-    award: award
+    name: {
+      total: people_count,
+      results: people
+    },
+    publication: {
+      total: publication_count,
+      results: publication
+    },
+    interest: {
+      total: interest_count,
+      results: interest
+    },
+    grant: {
+      total: grant_count,
+      results: grant
+    },
+    award: {
+      total: award_count,
+      results: award
+    }
   };
 }
 
@@ -144,6 +156,12 @@ var name_filters = function (querystr) {
       { MNAME: { $regex: '^'+RegExp.quote(querystr), $options: '-i' } }
     ]
   };
+}
+
+var skip_limit = function (query) {
+  var page = parseInt(query.page, 10) || 1;
+  var perpage = parseInt(query.perpage, 10) || 100;
+  return [(page - 1)*perpage, perpage];
 }
 
 module.exports = router;
