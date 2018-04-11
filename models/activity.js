@@ -202,21 +202,26 @@ ActivitySchema.statics.types_service = types_service;
 ActivitySchema.methods.translate = function () {
   var activity = this;
   var ret = {};
-  if (activity.doc_type == type_profile) {
+  if (activity.isProfile()) {
+    ret.type = 'profile';
     var interests = [];
     if (activity.RESEARCH_INTERESTS)
       interests.push('<strong class="research">Research:</strong> <span class="research">'+activity.RESEARCH_INTERESTS + '</span>');
     if (activity.TEACHING_INTERESTS)
       interests.push('<strong class="teaching">Teaching:</strong> <span class="teaching">'+activity.TEACHING_INTERESTS + '</span>');
     ret.full_description = interests.join('<br>');
-  } else if (types_scholarly.indexOf(activity.doc_type) > -1) {
+  } else if (activity.isScholarly()) {
+    ret.type = 'scholarly';
     var citeproc = new Citeproc('apa');
     ret.full_description = buildScholarlyCreativeCitation(activity, new Citeproc('apa'))
-  } else if (types_award.indexOf(activity.doc_type) > -1) {
+  } else if (activity.isAward()) {
+    ret.type = 'award';
     ret.full_description = formatAwardText(activity);
-  } else if (types_grant.indexOf(activity.doc_type) > -1) {
+  } else if (activity.isGrant()) {
+    ret.type = 'grant';
     ret.full_description = formatGrantText(activity);
-  } else if (types_service.indexOf(activity.doc_type) > -1) {
+  } else if (activity.isService()) {
+    ret.type = 'service';
     ret.role = activity.ROLE || "Role Not Specified";
     if (activity.ROLE == "Other") ret.role = activity.ROLEOTHER || "Role Not Specified";
     ret.organization = activity.ORG;
@@ -226,6 +231,22 @@ ActivitySchema.methods.translate = function () {
     ret.full_description = formatServiceText(activity);
   }
   return ret;
+}
+
+ActivitySchema.methods.isProfile = function () {
+  return type_profile == this.doc_type;
+}
+ActivitySchema.methods.isScholarly = function () {
+  return types_scholarly.indexOf(this.doc_type) > -1;
+}
+ActivitySchema.methods.isAward = function () {
+  return types_award.indexOf(this.doc_type) > -1;
+}
+ActivitySchema.methods.isGrant = function () {
+  return types_grant.indexOf(this.doc_type) > -1;
+}
+ActivitySchema.methods.isService = function () {
+  return types_service.indexOf(this.doc_type) > -1;
 }
 
 module.exports = mongoose.model('Activity', ActivitySchema);

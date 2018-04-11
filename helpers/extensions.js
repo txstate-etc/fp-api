@@ -22,6 +22,13 @@ Object.defineProperty(Object.prototype, "emptyHash", {
   }
 });
 
+Object.defineProperty(Object.prototype, "mergeHash", {
+  value: function (target) {
+    Object.assign(this, target);
+    return this;
+  }
+});
+
 RegExp.quote = function (str) {
   return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
