@@ -188,6 +188,8 @@ var ActivitySchema = new Schema({
 ActivitySchema.index({username: 1});
 ActivitySchema.index({'$**': 'text'});
 
+var type_profile = 'PROFILE';
+ActivitySchema.statics.type_profile = type_profile;
 var types_scholarly = ['INTELLCONT', 'ARTS_COLLECTIONS', 'ARTS_COMP', 'ARTS_PROD', 'ARTS_RESIDENCIES', 'ARTS_REVIEWS'];
 ActivitySchema.statics.types_scholarly = types_scholarly;
 var types_award = ['AWARDHONOR'];
@@ -200,7 +202,14 @@ ActivitySchema.statics.types_service = types_service;
 ActivitySchema.methods.translate = function () {
   var activity = this;
   var ret = {};
-  if (types_scholarly.indexOf(activity.doc_type) > -1) {
+  if (activity.doc_type == type_profile) {
+    var interests = [];
+    if (activity.RESEARCH_INTERESTS)
+      interests.push('<strong class="research">Research:</strong> <span class="research">'+activity.RESEARCH_INTERESTS + '</span>');
+    if (activity.TEACHING_INTERESTS)
+      interests.push('<strong class="teaching">Teaching:</strong> <span class="teaching">'+activity.TEACHING_INTERESTS + '</span>');
+    ret.full_description = interests.join('<br>');
+  } else if (types_scholarly.indexOf(activity.doc_type) > -1) {
     var citeproc = new Citeproc('apa');
     ret.full_description = buildScholarlyCreativeCitation(activity, new Citeproc('apa'))
   } else if (types_award.indexOf(activity.doc_type) > -1) {

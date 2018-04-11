@@ -5,27 +5,21 @@ var Activity = require('../models/activity');
 
 router.route('/name')
   .get(function(req, res, next) {
-    var query = req.query.q || '';
-    var activities = [];
+    var person_filters = {
+      '$or': [
+        { FNAME: { $regex: '^'+RegExp.quote(query) } },
+        { LNAME: { $regex: '^'+RegExp.quote(query) } },
+        { MNAME: { $regex: '^'+RegExp.quote(query) } }
+      ]
+    };
 
-    var filters = common_filters(req.query);
-    filters['$or'] = [
-      { FNAME: { $regex: '^'+RegExp.quote(query) } },
-      { LNAME: { $regex: '^'+RegExp.quote(query) } },
-      { MNAME: { $regex: '^'+RegExp.quote(query) } }
-    ];
-
-    Person.find(filters)
-    .then(function (people) {
-      var ret = people.map(function (person) { return person.basic_info(); });
-      res.header("Access-Control-Allow-Origin", "*");
-      res.json(ret);
-    })
-    .catch(function(err){
-      console.log(err)
-      next(err)
-    });
+    search_person(req, res, next, person_filters);
   })
+
+router.route('/interest')
+  .get(function(req, res, next) {
+    search_activity(req, res, next, {'doc_type': Activity.type_profile})
+  });
 
 router.route('/publication')
   .get(function(req, res, next) {
@@ -72,6 +66,24 @@ var lookup_activity = async function(activity_filters, person_filters) {
     var activity = act.translate();
     activity.person = peoplehash[act.username];
     return activity;
+  });
+}
+
+var search_person = function (req, res, next, person_filters) {
+  var query = req.query.q || '';
+  var activities = [];
+
+  var filters = Object.assign({}, common_filters(req.query), person_filters);
+
+  Person.find(filters)
+  .then(function (people) {
+    var ret = people.map(function (person) { return person.basic_info(); });
+    res.header("Access-Control-Allow-Origin", "*");
+    res.json(ret);
+  })
+  .catch(function(err){
+    console.log(err)
+    next(err)
   });
 }
 
