@@ -6,9 +6,11 @@ var Schema = mongoose.Schema;
 var PersonSchema = new Schema({
   username : String,
   PREFIX : String,
+  PFNAME : String,
   FNAME : String,
   MNAME : String,
   LNAME : String,
+  SUFFIX : String,
   EMAIL : String,
   BUILDING: String,
   ROOMNUM: String,
@@ -33,16 +35,25 @@ PersonSchema.index({FNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 PersonSchema.index({LNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 PersonSchema.index({MNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 
+PersonSchema.virtual('display_name').get(function () {
+  var ret = [];
+  if (this.PREFIX) ret.push(this.PREFIX);
+  if (this.PFNAME) ret.push(this.PFNAME);
+  else {
+    if (this.FNAME) ret.push(this.FNAME);
+    if (this.MNAME) ret.push(this.MNAME);
+  }
+  if (this.LNAME) ret.push(this.LNAME);
+  if (this.SUFFIX) ret.push(this.SUFFIX);
+  return ret.join(' ');
+});
+
 PersonSchema.methods.basic_info = function () {
   var ret = {};
   var person = this;
   ret.userid = person.username;
 
-  ret.display_name = "";
-  ret.display_name += (person.PREFIX) ? `${person.PREFIX} ` : "";
-  ret.display_name += (person.FNAME) ? `${person.FNAME} ` : "";
-  ret.display_name += (person.MNAME) ? `${person.MNAME} ` : "";
-  ret.display_name += (person.LNAME) ? `${person.LNAME}` : "";
+  ret.display_name = person.display_name;
 
   ret.primary_title = "";
   if (person.positions && person.positions.length > 0 && person.positions[0].title)

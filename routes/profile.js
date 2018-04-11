@@ -43,11 +43,8 @@ router.route('/:netId')
       // person
       profile.faculty_id = person.username;
       //TODO: Move name, phone number, and office construction out of here
-      profile.display_name = "";
-      profile.display_name += (person.PREFIX) ? `${person.PREFIX} ` : "";
-      profile.display_name += (person.FNAME) ? `${person.FNAME} ` : "";
-      profile.display_name += (person.MNAME) ? `${person.MNAME} ` : "";
-      profile.display_name += (person.LNAME) ? `${person.LNAME}` : "";
+      profile.display_name = person.display_name;
+
       if (person.positions && person.positions.length > 0) {
         profile.positions = [];
         person.positions.forEach(function(position) {
