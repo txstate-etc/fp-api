@@ -8,6 +8,7 @@ var index = require('./routes/index');
 var profile = require('./routes/profile');
 var department = require('./routes/department');
 var search = require('./routes/search');
+var files = require('./routes/files');
 
 require('./helpers/extensions.js');
 
@@ -35,6 +36,8 @@ mongoose.connect('mongodb://'+db_userpassword_prefix+db_host+':'+db_port+'/'+db_
   ssl: process.env.DB_SSL
 });
 
+global.dm_files_path = process.env.DM_FILE_PATH || '/fp-files';
+
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -47,6 +50,7 @@ app.use('/', index);
 app.use('/profile', profile);
 app.use('/department', department);
 app.use('/search', search);
+app.use('/files', files);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

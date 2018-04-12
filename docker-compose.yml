@@ -6,6 +6,8 @@ services:
       DB_HOST: mongodb
     ports:
       - 3000:80
+    volumes:
+      - facultyprofilesfiles:/fp-files
     links:
       - mongodb
     depends_on:
@@ -13,6 +15,8 @@ services:
   mongo-seed:
     build: ./mongo-seed
     restart: on-failure
+    volumes:
+      - facultyprofilesfiles:/fp-files
     links:
       - mongodb
     depends_on:
@@ -23,3 +27,4 @@ services:
       - facultyprofilesdb:/data/db
 volumes:
   facultyprofilesdb: {}
+  facultyprofilesfiles: {}
