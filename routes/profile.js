@@ -42,7 +42,7 @@ router.route('/:netId')
 
       // person
       profile.faculty_id = person.username;
-      //TODO: Move name, phone number, and office construction out of here
+      //TODO: phone number, and office construction out of here
       profile.display_name = person.display_name;
 
       if (person.positions && person.positions.length > 0) {
@@ -57,7 +57,6 @@ router.route('/:netId')
       profile.office_location += (person.BUILDING) ? `${person.BUILDING} ` : "";
       profile.office_location += (person.ROOMNUM) ? `${person.ROOMNUM}` : "";
       profile.phone_number = `(${person.OPHONE1}) ${person.OPHONE2}-${person.OPHONE3}`
-
       // bio
       if (bio) {
         profile.biography = bio.BIO;
@@ -87,7 +86,7 @@ router.route('/:netId')
     })
   })
 
-//Route used to get all of a particular activity
+//Route used to get all of a particular activity for a given faculty member
 router.route('/:netId/activity/:type')
   .get(function(req, res, next) {
     var netId = req.params.netId;
@@ -95,145 +94,67 @@ router.route('/:netId/activity/:type')
     var conditions = {};
     var activityTitle = "";
     var citationBuilder;
-    console.log(`getting ${type} for ${netId}`)
+    var ret = {};
     conditions.username = netId;
     switch(type) {
         case 'scholarly-creative':
           conditions.doc_type = { $in: Activity.types_scholarly }
+          ret.activity_title = "Scholarly Creative Works";
           break;
         case 'awards':
           conditions.doc_type = { $in: Activity.types_award }
+          ret.activity_title = "Awards";
           break;
         case 'grants':
           conditions.doc_type = { $in: Activity.types_grant }
+          ret.activity_title = "Grants";
           break;
         case 'service':
           conditions.doc_type = { $in: Activity.types_service }
+          ret.activity_title = "Service Activities";
           break;
         default:
         //what would the default be?
     }
-    Activity.find(conditions)
-      .sort({"time_range" : -1})
-      .then(function(activities) {
-        switch(type) {
-            case 'scholarly-creative':
-              res.json(handleScholarlyCreative(activities));
-              break;
-            case 'awards':
-            res.json(handleAwards(activities));
-              break;
-            case 'grants':
-              res.json(handleGrants(activities));
-              break;
-            case 'service':
-              res.json(handleService(activities));
-              break;
-            default:
-            //??
+    Promise.all([
+      Person.findOne({"username" : netId}),
+      Activity.find(conditions).sort({"time_range" : -1})
+    ])
+    .then(function(results) {
+      var person, activities;
+      [person, activities] = results;
+      ret.person_info = person.basic_info();
+      var activityYearMap = new Map();
+      activities.forEach(function(activity) {
+        var activityYear;
+        if (activity.DTY_PUB || activity.DTY_ACC) {
+          activityYear = activity.DTY_PUB || activity.DTY_ACC;
         }
+        else if (activity.DTY_END) {
+          activityYear = activity.DTY_END;
+        }
+        else if (activity.DTY_START) {
+          activityYear = "current";
+        }
+        else {
+          activityYear = "Date Not Specified";
+        }
+        if (!activityYearMap.has(activityYear)) {
+          activityYearMap.set(activityYear, []);
+        }
+        activityYearMap.get(activityYear).push(activity.translate());
       })
-      .catch(function(err) {
-        console.log("Error: " + err)
-        next(err)
+      ret.activities = [];
+      activityYearMap.forEach(function(value, key, map) {
+        ret.activities.push({year: key, items: value})
       })
+      res.json(ret)
+    })
+    .catch(function(err) {
+      console.log("Error: " + err)
+      next(err)
+    })
   })
-
-//TODO: This could be DRYer.
-
-function handleScholarlyCreative(activities) {
-  var result = {"activity-title": "Scholarly Creative Works"};
-  result.activities = [];
-  var currentGroup = {};
-
-  //TODO: Here, we would need to get their preferred citation format
-  var citationFormat = 'apa';
-  var citeproc = new Citeproc(citationFormat);
-
-  for (var activity of activities) {
-    //TODO: We will probably only show things that have been published.
-    var activityYear = activity.DTY_PUB || activity.DTY_ACC || activity.DTY_SUB || activity.DTY_EXPSUB || activity.DTY_END || activity.DTY_START || activity.DTY_DATE || "Date Not Specified";
-    if (activityYear == currentGroup.year) {
-      currentGroup.items.push({activity: buildScholarlyCreativeCitation(activity, citeproc)})
-    }
-    else {
-      if (currentGroup.year)
-        result.activities.push(currentGroup);
-      currentGroup = {};
-      currentGroup.year = activityYear;
-      currentGroup.items = [{activity: buildScholarlyCreativeCitation(activity, citeproc)}]
-    }
-  }
-  if (currentGroup.year)
-    result.activities.push(currentGroup);
-  return result;
-}
-
-function handleAwards(activities) {
-  var result = {"activity-title": "Awards"};
-  result.activities = [];
-  var currentGroup = {};
-  for (var activity of activities) {
-    var activityYear = activity.DTY_END || activity.DTY_START || "Date Not Specified";
-    if (activityYear == currentGroup.year) {
-      currentGroup.items.push({activity: formatAwardText(activity)})
-    }
-    else {
-      if (currentGroup.year)
-        result.activities.push(currentGroup);
-      currentGroup = {};
-      currentGroup.year = activityYear;
-      currentGroup.items = [{activity: formatAwardText(activity)}]
-    }
-  }
-  if (currentGroup.year)
-    result.activities.push(currentGroup);
-  return result;
-}
-
-function handleGrants(activities) {
-  var result = {"activity-title": "Grants"};
-  result.activities = [];
-  var currentGroup = {};
-  for (var activity of activities) {
-    var activityYear = activity.DTY_END || activity.DTY_START || "Date Not Specified";
-    if (activityYear == currentGroup.year) {
-      currentGroup.items.push({activity: formatGrantText(activity)})
-    }
-    else {
-      if (currentGroup.year)
-        result.activities.push(currentGroup);
-      currentGroup = {};
-      currentGroup.year = activityYear;
-      currentGroup.items = [{activity: formatGrantText(activity)}]
-    }
-  }
-  if (currentGroup.year)
-    result.activities.push(currentGroup);
-  return result;
-}
-
-function handleService(activities) {
-  var result = {"activity-title": "Service Activities"};
-  result.activities = [];
-  var currentGroup = {};
-  for (var activity of activities) {
-    var activityYear = activity.DTY_END || "Current";
-    if (activityYear == currentGroup.year) {
-      currentGroup.items.push({activity: formatServiceText(activity)})
-    }
-    else {
-      if (currentGroup.year)
-        result.activities.push(currentGroup);
-      currentGroup = {};
-      currentGroup.year = activityYear;
-      currentGroup.items = [{activity: formatServiceText(activity)}]
-    }
-  }
-  if (currentGroup.year)
-    result.activities.push(currentGroup);
-  return result;
-}
 
 //TODO: Does there need to be a route for retrieving profile pictures? Is that a different endpoint?
 
