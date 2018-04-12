@@ -4,6 +4,11 @@ var Schema = mongoose.Schema;
 require('../helpers/citation-helper.js')();
 var Citeproc = require('../citeproc-engine.js');
 
+// pre-load citeproc instances because this is expensive
+var citeprocs = {
+  apa: new Citeproc('apa')
+}
+
 //NOTES
 // * DM uses 'PUBLISHER' for the venue of a book review. What does CSL use? PUBLISHER might have 2 different meanings, depending on content type
 // * Is publication country used in the citation?
@@ -212,8 +217,7 @@ ActivitySchema.methods.translate = function () {
     ret.full_description = interests.join('<br>');
   } else if (activity.isScholarly()) {
     ret.type = 'scholarly';
-    var citeproc = new Citeproc('apa');
-    ret.full_description = buildScholarlyCreativeCitation(activity, new Citeproc('apa'))
+    ret.full_description = buildScholarlyCreativeCitation(activity, citeprocs.apa)
   } else if (activity.isAward()) {
     ret.type = 'award';
     ret.full_description = formatAwardText(activity);
