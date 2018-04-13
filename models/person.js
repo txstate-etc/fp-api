@@ -1,9 +1,12 @@
 //schema for faculty members, includes PCI, PROFILE, admin, admin_perm
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var Path = require('path');
+var Config = require('../helpers/configuration.js')
 
 //TODO: Add more fields once they are known
 var PersonSchema = new Schema({
+  user_id : String,
   username : String,
   PREFIX : String,
   PFNAME : String,
@@ -64,6 +67,38 @@ PersonSchema.methods.basic_info = function () {
   ret.primary_department = "";
   if (person.positions && person.positions.length > 0 && person.positions[0].organization && person.positions[0].organization.department)
     ret.primary_department = person.positions[0].organization.department;
+
+  return ret;
+}
+
+PersonSchema.methods.advanced_info = function () {
+  var person = this;
+  var ret = person.basic_info();
+
+  if (person.positions && person.positions.length > 0) {
+    ret.positions = [];
+    person.positions.forEach(function(position) {
+      ret.positions.push({"title" : position.title, "department": position.organization.department})
+    })
+  }
+
+  var cvfname = Path.basename(person.CURRICULUM_VITAE);
+  ret.uploadedcv = {
+    filename: cvfname,
+    path: Config.createlink('/files/cv/'+person.user_id+'/'+cvfname)
+  }
+
+  var ppfname = Path.basename(person.PROFILE_PHOTO);
+  ret.portrait = {
+    filename: ppfname,
+    path: Config.createlink('/files/photo/'+person.user_id+'/'+ppfname)
+  }
+
+  ret.email = person.EMAIL;
+  ret.office_location = "";
+  ret.office_location += (person.BUILDING) ? `${person.BUILDING} ` : "";
+  ret.office_location += (person.ROOMNUM) ? `${person.ROOMNUM}` : "";
+  ret.phone_number = `(${person.OPHONE1}) ${person.OPHONE2}-${person.OPHONE3}`
 
   return ret;
 }

@@ -37,26 +37,9 @@ router.route('/:netId')
         "doc_type" : { $in: Activity.types_service }
       }).sort({"time_range" : -1}).limit(5)
     ]).then(function (results) {
-      var person, bio, publications, awards, grants, service;
-      [person, bio, publications, awards, grants, service] = results;
+      var [person, bio, publications, awards, grants, service] = results;
+      profile = person.advanced_info();
 
-      // person
-      profile.faculty_id = person.username;
-      //TODO: phone number, and office construction out of here
-      profile.display_name = person.display_name;
-
-      if (person.positions && person.positions.length > 0) {
-        profile.positions = [];
-        person.positions.forEach(function(position) {
-          console.log(position)
-          profile.positions.push({"title" : position.title, "department": position.organization.department})
-        })
-      }
-      profile.email = person.EMAIL;
-      profile.office_location = "";
-      profile.office_location += (person.BUILDING) ? `${person.BUILDING} ` : "";
-      profile.office_location += (person.ROOMNUM) ? `${person.ROOMNUM}` : "";
-      profile.phone_number = `(${person.OPHONE1}) ${person.OPHONE2}-${person.OPHONE3}`
       // bio
       if (bio) {
         profile.biography = bio.BIO;
