@@ -35,7 +35,7 @@ var PersonSchema = new Schema({
   }]
 });
 
-PersonSchema.index({username: 1});
+PersonSchema.index({user_id: 1});
 PersonSchema.index({FNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 PersonSchema.index({LNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 PersonSchema.index({MNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
@@ -56,7 +56,7 @@ PersonSchema.virtual('display_name').get(function () {
 PersonSchema.methods.basic_info = function () {
   var ret = {};
   var person = this;
-  ret.userid = person.username;
+  ret.id = person.user_id;
 
   ret.display_name = person.display_name;
 

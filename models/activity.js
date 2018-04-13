@@ -17,6 +17,7 @@ var citeprocs = {
 // * arts_collections venue vs location
 var ActivitySchema = new Schema({
   id: String,
+  user_id: String,
   username: String,
   doc_type: String,
   user_id: String,
@@ -190,7 +191,7 @@ var ActivitySchema = new Schema({
   TEACHING_INTERESTS : String
 });
 
-ActivitySchema.index({username: 1});
+ActivitySchema.index({user_id: 1});
 ActivitySchema.index({'$**': 'text'});
 
 var type_profile = 'PROFILE';

@@ -5,35 +5,34 @@ var Citeproc = require('../citeproc-engine.js');
 var Person = require('../models/person');
 var Activity = require('../models/activity');
 
-//If the route is /person/netID, build and return the profile for the faculty member
-router.route('/:netId')
+router.route('/:userid')
   .get(function(req, res, next) {
-    var netId = req.params.netId
+    var userid = req.params.userid
     var profile = {};
 
     Promise.all([
-      Person.findOne({"username" : netId}),
+      Person.findOne({"user_id" : userid}),
 
-      Activity.findOne({"username" : netId, "doc_type" : "PROFILE"}),
+      Activity.findOne({"user_id" : userid, "doc_type" : "PROFILE"}),
 
       Activity.find({
-        "username" : netId,
+        "user_id" : userid,
         "doc_type" : { $in: Activity.types_scholarly },
         "STATUS" : {$in : ['Published', 'Accepted / In Press', 'Completed']}
       }).sort({"time_range" : -1}).limit(5),
 
       Activity.find({
-        "username" : netId,
+        "user_id" : userid,
         "doc_type" : { $in: Activity.types_award }
       }).sort({"time_range" : -1}).limit(5),
 
       Activity.find({
-        "username" : netId,
+        "user_id" : userid,
         "doc_type" : { $in: Activity.types_grant }
       }).sort({"time_range" : -1}).limit(5),
 
       Activity.find({
-        "username": netId,
+        "user_id": userid,
         "doc_type" : { $in: Activity.types_service }
       }).sort({"time_range" : -1}).limit(5)
     ]).then(function (results) {
@@ -70,15 +69,15 @@ router.route('/:netId')
   })
 
 //Route used to get all of a particular activity for a given faculty member
-router.route('/:netId/activity/:type')
+router.route('/:userid/activity/:type')
   .get(function(req, res, next) {
-    var netId = req.params.netId;
+    var userid = req.params.userid;
     var type = req.params.type;
     var conditions = {};
     var activityTitle = "";
     var citationBuilder;
     var ret = {};
-    conditions.username = netId;
+    conditions.user_id = userid;
     switch(type) {
         case 'scholarly-creative':
           conditions.doc_type = { $in: Activity.types_scholarly }
@@ -100,13 +99,13 @@ router.route('/:netId/activity/:type')
         //what would the default be?
     }
     Promise.all([
-      Person.findOne({"username" : netId}),
+      Person.findOne({"user_id" : userid}),
       Activity.find(conditions).sort({"time_range" : -1})
     ])
     .then(function(results) {
       var person, activities;
       [person, activities] = results;
-      ret.person_info = person.basic_info();
+      ret.person = person.basic_info();
       var activityYearMap = new Map();
       activities.forEach(function(activity) {
         var activityYear;

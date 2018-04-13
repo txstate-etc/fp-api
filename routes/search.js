@@ -79,23 +79,23 @@ var search_person = function (req, res, next, person_filters) {
 var lookup_activity = async function(activity_filters, person_filters, skip = 0, limit = 100) {
   var filtered_userids = [];
   if (!person_filters.emptyHash()) {
-    var people = await Person.find(person_filters, 'username');
-    filtered_userids = people.map(function (person) { return person.username });
+    var people = await Person.find(person_filters, 'user_id');
+    filtered_userids = people.map(function (person) { return person.user_id });
   }
-  if (filtered_userids.length > 0) activity_filters['username'] = { $in: filtered_userids };
+  if (filtered_userids.length > 0) activity_filters['user_id'] = { $in: filtered_userids };
 
   var acts = await Activity.find(activity_filters).skip(skip).limit(limit);
-  var userids = acts.distinct(function (act) { return act.username });
-  var people = await Person.find({ username: { $in : userids } });
+  var userids = acts.distinct(function (act) { return act.user_id });
+  var people = await Person.find({ user_id: { $in : userids } });
 
   var peoplehash = people.reduce(function (map, person) {
-    map[person.username] = person.basic_info();
+    map[person.user_id] = person.basic_info();
     return map;
   }, {});
 
   return acts.map(function (act) {
     var activity = act.translate();
-    activity.person = peoplehash[act.username];
+    activity.person = peoplehash[act.user_id];
     return activity;
   });
 }
