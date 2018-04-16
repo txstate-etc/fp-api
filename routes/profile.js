@@ -65,7 +65,6 @@ router.route('/:userid')
       profile.service_activities = service.map(function (activity) { return activity.translate() });
 
       // return
-      res.header("Access-Control-Allow-Origin", "*");
       res.json(profile)
     })
     .catch(function(err){

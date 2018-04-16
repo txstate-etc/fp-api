@@ -7,7 +7,6 @@ router.route('/all')
   .get(function(req, res, next) {
     lookup_all(req.query)
     .then(function (ret) {
-      res.header("Access-Control-Allow-Origin", "*");
       res.json(ret);
     })
     .catch(function (err) {
@@ -52,7 +51,6 @@ var search_activity = function (req, res, next, activity_filters) {
   activity_filters['$text'] = { $search: query };
   lookup_activity(activity_filters, common_filters(req.query), skip, limit)
   .then(function (ret) {
-    res.header("Access-Control-Allow-Origin", "*");
     res.json(ret);
   })
   .catch(function(err){
@@ -67,7 +65,6 @@ var search_person = function (req, res, next, person_filters) {
   Person.find(person_filters).skip(skip).limit(limit)
   .then(function (people) {
     var ret = people.map(function (person) { return person.basic_info(); });
-    res.header("Access-Control-Allow-Origin", "*");
     res.json(ret);
   })
   .catch(function(err){
