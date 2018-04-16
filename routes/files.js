@@ -9,7 +9,7 @@ router.route('/cv/:userid/:filename')
   .get(function(req, res, next) {
     Person.findOne({user_id: req.params.userid})
     .then(function (person) {
-      return serve_file(res, person.CURRICULUM_VITAE, req.params.filename)
+      return serve_file(res, person.UPLOAD_VITA, req.params.filename)
     })
     .catch(function (err) {
       console.log(err)
@@ -21,7 +21,7 @@ router.route('/photo/:userid/:filename')
   .get(function(req, res, next) {
     Person.findOne({user_id: req.params.userid})
     .then(function (person) {
-      return serve_file(res, person.PROFILE_PHOTO, req.params.filename)
+      return serve_file(res, person.UPLOAD_PHOTO, req.params.filename)
     })
     .catch(function (err) {
       console.log(err)

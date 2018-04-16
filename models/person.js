@@ -23,8 +23,8 @@ var PersonSchema = new Schema({
   DPHONE1: String,
   DPHONE2: String,
   DPHONE3: String,
-  CURRICULUM_VITAE: String,
-  PROFILE_PHOTO: String,
+  UPLOAD_VITA: String,
+  UPLOAD_PHOTO: String,
   positions: [{
     title : String,
     organization : {
@@ -82,16 +82,20 @@ PersonSchema.methods.advanced_info = function () {
     })
   }
 
-  var cvfname = Path.basename(person.CURRICULUM_VITAE);
-  ret.uploadedcv = {
-    filename: cvfname,
-    path: Config.createlink('/files/cv/'+person.user_id+'/'+cvfname)
+  if (person.UPLOAD_VITA) {
+    var cvfname = Path.basename(person.UPLOAD_VITA);
+    ret.uploadedcv = {
+      filename: cvfname,
+      path: Config.createlink('/files/cv/'+person.user_id+'/'+cvfname)
+    }
   }
 
-  var ppfname = Path.basename(person.PROFILE_PHOTO);
-  ret.portrait = {
-    filename: ppfname,
-    path: Config.createlink('/files/photo/'+person.user_id+'/'+ppfname)
+  if (person.UPLOAD_PHOTO) {
+    var ppfname = Path.basename(person.UPLOAD_PHOTO);
+    ret.portrait = {
+      filename: ppfname,
+      path: Config.createlink('/files/photo/'+person.user_id+'/'+ppfname)
+    }
   }
 
   ret.email = person.EMAIL;

@@ -31,8 +31,8 @@
 	"DTM_DOB" : "Jan",
 	"DTD_DOB" : 15,
 	"DTY_DOB" : 1970,
-	"CURRICULUM_VITAE" : "/tu01/cv.pdf",
-	"PROFILE_PHOTO" : "/tu01/photo.jpg"
+	"UPLOAD_VITA" : "/tu01/cv.pdf",
+	"UPLOAD_PHOTO" : "/tu01/photo.jpg"
 },{
 	"_id" : ObjectId("2abd0e1396e30e78b06369fa"),
 	"lastModified" : "2017-03-28T08:17:03",
