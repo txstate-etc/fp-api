@@ -37,6 +37,12 @@ router.route('/:userid')
       }).sort({"time_range" : -1}).limit(5)
     ]).then(function (results) {
       var [person, bio, publications, awards, grants, service] = results;
+
+      if (!person) {
+        res.sendStatus(404);
+        return;
+      }
+
       profile = person.advanced_info();
 
       // bio
@@ -103,8 +109,12 @@ router.route('/:userid/activity/:type')
       Activity.find(conditions).sort({"time_range" : -1})
     ])
     .then(function(results) {
-      var person, activities;
-      [person, activities] = results;
+      var [person, activities] = results;
+      if (!person) {
+        res.sendStatus(404);
+        return;
+      }
+
       ret.person = person.basic_info();
       var activityYearMap = new Map();
       activities.forEach(function(activity) {

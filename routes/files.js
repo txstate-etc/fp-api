@@ -9,7 +9,8 @@ router.route('/cv/:userid/:filename')
   .get(function(req, res, next) {
     Person.findOne({user_id: req.params.userid})
     .then(function (person) {
-      return serve_file(res, person.UPLOAD_VITA, req.params.filename)
+      if (!person || !person.UPLOAD_VITA) res.sendStatus(404)
+      else return serve_file(res, person.UPLOAD_VITA, req.params.filename)
     })
     .catch(function (err) {
       console.log(err)
@@ -21,7 +22,8 @@ router.route('/photo/:userid/:filename')
   .get(function(req, res, next) {
     Person.findOne({user_id: req.params.userid})
     .then(function (person) {
-      return serve_file(res, person.UPLOAD_PHOTO, req.params.filename)
+      if (!person || !person.UPLOAD_PHOTO) res.sendStatus(404)
+      else return serve_file(res, person.UPLOAD_PHOTO, req.params.filename)
     })
     .catch(function (err) {
       console.log(err)
