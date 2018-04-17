@@ -33,7 +33,10 @@ if (db_user.length > 0 && db_pw.length > 0) db_userpassword_prefix = db_user+':'
 var db_authdb_suffix = '';
 if (db_authdb.length > 0) db_authdb_suffix = '?authSource='+db_authdb;
 mongoose.connect('mongodb://'+db_userpassword_prefix+db_host+':'+db_port+'/'+db_name+db_authdb_suffix, {
-  ssl: process.env.DB_SSL
+  ssl: process.env.DB_SSL,
+  reconnectTries: Number.MAX_VALUE,
+  reconnectInterval: 500,
+  poolSize: 20
 });
 
 global.dm_files_path = process.env.DM_FILE_PATH || '/fp-files';
