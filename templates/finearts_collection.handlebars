@@ -1,13 +1,9 @@
-<div class="finearts-collection">
-  {{period (italic title)}}
+{{period (italic title)}}
 
-  {{#ensureperiod}}{{collection-name}}{{#all collection-name collection-location}}, {{/all}}{{collection-location}}{{/ensureperiod}}
+{{#ensureperiod}}{{collection-name}}{{#all collection-name collection-location}}, {{/all}}{{collection-location}}{{/ensureperiod}}
 
-  {{period collection-type}}
+{{period collection-type}}
 
-  {{#ensureperiod}}{{daterange (date startyear startmonth startday) (date endyear endmonth endday)}}{{#if acquired-date}}, Acquired: {{acquired-date}}{{/if}}{{#if medium}}, {{medium}}{{/if}}{{/ensureperiod}}
+{{#ensureperiod}}{{daterange (date startyear startmonth startday) (date endyear endmonth endday)}}{{#if acquired-date}}, Acquired: {{acquired-date}}{{/if}}{{#if medium}}, {{medium}}{{/if}}{{/ensureperiod}}
 
-  {{#if reviews}}
-    {{>finearts_reviews}}
-  {{/if}}
-</div>
+{{>finearts_reviews}}

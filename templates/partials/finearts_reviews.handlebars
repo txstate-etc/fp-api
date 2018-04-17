@@ -1,5 +1,5 @@
-<div class="review">
-	<ul>
+{{#if reviews}}
+	<ul class="review" style="list-style: none; padding-left: 1.25em">
 	{{#ng-each reviews~}}
 		<li>
 		{{#ensureperiod}}
@@ -10,4 +10,4 @@
 		</li>
 	{{~/ng-each}}
 	</ul>
-</div>
+{{/if}}

@@ -1,12 +1,6 @@
-<div class="finarts-productions">
+{{#ensureperiod}}{{role}}{{#all role title}}, {{/all}} {{italic title}}{{/ensureperiod}}
 
-  {{#ensureperiod}}{{role}}{{#all role title}}, {{/all}} {{italic title}}{{/ensureperiod}}
+{{period (daterange (date startyear startmonth startday) (date endyear endmonth endday))}}
 
-  {{period (daterange (date startyear startmonth startday) (date endyear endmonth endday))}}
-
-  {{#if venues}}
-  {{>finearts_performances performances=venues}}
-  {{/if}}
-
-  {{>finearts_reviews}}
-</div>
+{{>finearts_performances}}
+{{>finearts_reviews}}

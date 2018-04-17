@@ -56,6 +56,7 @@ function citeArtCollection(activity) {
       if (activity.NUM_ARTISTS) context['num-artists'] = activity.NUM_ARTISTS
       if (activity.SCOPE) context.scope = activity.SCOPE
       if (activity.VENUE.length > 0) {
+        context.performancesphrase = "Schedule"
         context.venues = buildVenues(activity.VENUE);
       }
       template = artTemplates.exhibition;
@@ -85,6 +86,7 @@ function citeArtComposition(activity) {
     context.reviews = buildReviews(activity.REVIEW);
   }
   if (activity.VENUE.length > 0) {
+    context.performancesphrase = "Performances"
     context.venues = buildVenues(activity.VENUE);
   }
   template = artTemplates.musiccomposition;

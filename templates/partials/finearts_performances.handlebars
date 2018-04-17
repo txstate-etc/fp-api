@@ -1,18 +1,16 @@
-<div class="venue">
-  <div class="venue-label">
-    {{performancesphrase}}:
-  </div>
-  <div class="venue-items">
-    <ul>
-      {{#ng-each performances~}}
-        <li>
-          {{#if this.title}}
-            {{period this.title}}
-          {{/if}}
-          {{daterange (date this.startyear this.startmonth this.startday) (date this.endyear this.endmonth this.endday)}}
-          {{#ensureperiod}}{{this.name}}{{#if this.location}}{{#all this.name this.location}}, {{/all}}{{this.location}}{{/if}}{{#any this.startDate this.endDate}}, {{daterange this.startDate this.endDate}}{{/any}}{{/ensureperiod}}
-        </li>
-      {{~/ng-each}}
-    </ul>
-  </div>
+{{#if venues}}
+<div>
+  <div class="listlabel" style="padding-left: 1.25em; float: left; clear: both">{{performancesphrase}}:</div>
+  <ul class="venues" style="margin-left: 9em; padding: 0; list-style: none">
+    {{#ng-each venues~}}
+      <li>
+        {{#if this.title}}
+          {{period this.title}}
+        {{/if}}
+        {{daterange (date this.startyear this.startmonth this.startday) (date this.endyear this.endmonth this.endday)}}
+        {{#ensureperiod}}{{this.name}}{{#if this.location}}{{#all this.name this.location}}, {{/all}}{{this.location}}{{/if}}{{#any this.startDate this.endDate}}, {{daterange this.startDate this.endDate}}{{/any}}{{/ensureperiod}}
+      </li>
+    {{~/ng-each}}
+  </ul>
 </div>
+{{/if}}

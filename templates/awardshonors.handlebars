@@ -1,7 +1,3 @@
-<div class="awardhonor">
-  {{type}} {{nomrec}}{{#any name org}}: {{/any}}
-  {{#ensureperiod}}{{name}}, {{org}}{{/ensureperiod}}
-  <div class="awardhonordates">
-    {{daterange (date startyear startmonth startday) (date endyear endmonth endday)}}
-  </div>
-</div>
+<span class="summary">{{type}} {{nomrec}}{{#any name org}}: {{/any}}
+{{#ensureperiod}}{{name}}, {{org}}{{/ensureperiod}}</span>
+<span class="dates" style="display: block; margin-left: 1.25em">{{daterange (date startyear startmonth startday) (date endyear endmonth endday)}}</span>

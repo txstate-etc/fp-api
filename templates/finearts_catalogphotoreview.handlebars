@@ -1,22 +1,17 @@
-<div class="finearts-reviewcatalogphoto">
-  {{period (italic title)}}
+{{period (italic title)}}
 
-  {{period publication-title}}
+{{period publication-title}}
 
-  {{period edition}}
+{{period edition}}
 
-  {{#if volume}}Vol. {{#ensureperiod}}{{volume}}{{/ensureperiod}}{{/if}}
+{{#if volume}}Vol. {{#ensureperiod}}{{volume}}{{/ensureperiod}}{{/if}}
 
-  {{#ensureperiod}}{{start-page}}{{#all start-page end-page}} - {{/all}}{{end-page}}{{/ensureperiod}}
+{{#ensureperiod}}{{start-page}}{{#all start-page end-page}} - {{/all}}{{end-page}}{{/ensureperiod}}
 
-  {{#ensureperiod}}{{publisher-location}}{{#all publisher-location publisher}}: {{/all}}{{publisher}}{{/ensureperiod}}
+{{#ensureperiod}}{{publisher-location}}{{#all publisher-location publisher}}: {{/all}}{{publisher}}{{/ensureperiod}}
 
-  {{period scope}}
+{{period scope}}
 
-  {{period (date reviewyear reviewmonth reviewday)}}
+{{period (date reviewyear reviewmonth reviewday)}}
 
-  {{#if reviews}}
-    {{>finearts_reviews}}
-  {{/if}}
-
-</div>
+{{>finearts_reviews}}

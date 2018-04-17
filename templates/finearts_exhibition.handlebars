@@ -1,28 +1,20 @@
-<div class="finearts-exhibition">
-  {{period (italic title)}}
+{{period (italic title)}}
 
-  {{period collection-name}}
+{{period collection-name}}
 
-  {{daterange (date startyear startmonth startday) (date endyear endmonth endday)}}
+{{daterange (date startyear startmonth startday) (date endyear endmonth endday)}}
 
-  {{#if num-artists}}
-  <div class="exhibition-artists">
-    Artists: {{num-artists}}
-  </div>
-  {{/if}}
+{{#if num-artists}}
+<span class="artists">
+  Artists: {{num-artists}}
+</span>
+{{/if}}
 
-  {{#if scope}}
-  <div class="exhibition-scope">
-    ({{scope}})
-  </div>
-  {{/if}}
+{{#if scope}}
+<span class="scope">
+  ({{scope}})
+</span>
+{{/if}}
 
-  {{#if venues}}
-  {{>finearts_performances performances=venues performancesphrase="Schedule"}}
-  {{/if}}
-
-  {{#if reviews}}
-    {{>finearts_reviews}}
-  {{/if}}
-
-</div>
+{{>finearts_performances}}
+{{>finearts_reviews}}

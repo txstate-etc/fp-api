@@ -1,5 +1,3 @@
-<div class="finearts-musicalcomposition">
-
 {{period (italic title)}}
 
 {{#if publisher}}
@@ -10,10 +8,5 @@
   {{period year}}
 {{/if}}
 
-{{#if venues}}
-{{>finearts_performances performances=venues performancesphrase="Performances"}}
-{{/if}}
-
+{{>finearts_performances}}
 {{>finearts_reviews}}
-
-</div>
