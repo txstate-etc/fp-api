@@ -113,10 +113,11 @@ var lookup_all = async function (query) {
     lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_award } }, common_filters(query), 0, limit),
   ]);
 
+  var people_basic_info = people.map(function (person) { return person.basic_info(); });
   return {
     name: {
       total: people_count,
-      results: people
+      results: people_basic_info
     },
     publication: {
       total: publication_count,
