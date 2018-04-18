@@ -2,7 +2,7 @@
 	"_id" : ObjectId("5aa00e1396f30e78b92369dc"),
 	"lastModified" : "2017-01-27T08:17:03",
 	"username" : "tu01",
-  "user_id" :"4523685",
+  "user_id" :4523685,
 	"doc_type" : "PCI",
 	"positions": [
 	  {
@@ -31,13 +31,13 @@
 	"DTM_DOB" : "Jan",
 	"DTD_DOB" : 15,
 	"DTY_DOB" : 1970,
-	"UPLOAD_VITA" : "/tu01/cv.pdf",
-	"UPLOAD_PHOTO" : "/tu01/photo.jpg"
+	"UPLOAD_VITA" : "tu01/cv.pdf",
+	"UPLOAD_PHOTO" : "tu01/photo.jpg"
 },{
 	"_id" : ObjectId("2abd0e1396e30e78b06369fa"),
 	"lastModified" : "2017-03-28T08:17:03",
 	"username" : "tu02",
-  "user_id" :"7681536",
+  "user_id" :7681536,
 	"doc_type" : "PCI",
   "positions": [
     {

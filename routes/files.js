@@ -36,13 +36,15 @@ router.route('/attachment/:activityid/:filename')
 
   })
 
-var serve_file = async function (res, path, filename) {
-  if (!filename) filename = Path.basename(path);
-  res.setHeader('Content-Disposition', 'attachment;filename='+filename);
-  var stream = fs.createReadStream(global.dm_files_path+path);
-  stream.on('error', function (err) { throw err });
-  stream.pipe(res);
-  return true;
+var serve_file = function (res, path, filename) {
+  return new Promise(function(resolve, reject) {
+    if (!filename) filename = Path.basename(path);
+    res.setHeader('Content-Disposition', 'attachment;filename='+filename);
+    var stream = fs.createReadStream(global.dm_files_path+path);
+    stream.on('error', function (err) { reject(err) });
+    stream.on('readable', resolve);
+    stream.pipe(res);
+  })
 }
 
 module.exports = router;

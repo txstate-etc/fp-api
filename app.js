@@ -10,6 +10,7 @@ var department = require('./routes/department');
 var search = require('./routes/search');
 var files = require('./routes/files');
 
+var handlebars = require('./fp-handlebars').getInstance();
 var Activity = require('./models/activity');
 
 require('./helpers/extensions.js');
@@ -37,22 +38,21 @@ if (db_user.length > 0 && db_pw.length > 0) db_userpassword_prefix = db_user+':'
 var db_authdb_suffix = '';
 if (db_authdb.length > 0) db_authdb_suffix = '?authSource='+db_authdb;
 mongoose.connect('mongodb://'+db_userpassword_prefix+db_host+':'+db_port+'/'+db_name+db_authdb_suffix, {
-  ssl: process.env.DB_SSL,
+  ssl: process.env.DB_SSL == 'true' ? true : false,
   reconnectTries: Number.MAX_VALUE,
   reconnectInterval: 500,
   poolSize: 20
-});
-
-global.dm_files_path = process.env.DM_FILE_PATH || '/fp-files';
-
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
+})
+.then(function () {
   console.log("DB connection alive");
   Activity.watch_and_cache()
 })
+.catch(function (err) {
+  console.log(err)
+})
 
-var handlebars = require('./fp-handlebars').getInstance();
+global.dm_files_path = process.env.DM_FILE_PATH || '/fp-files/';
+
 
 app.use('/', index);
 app.use('/profile', profile);

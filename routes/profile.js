@@ -8,6 +8,7 @@ var Activity = require('../models/activity');
 router.route('/:userid')
   .get(function(req, res, next) {
     var userid = req.params.userid
+    console.log(userid);
     var profile = {};
 
     Promise.all([

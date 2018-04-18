@@ -17,10 +17,9 @@ var citeprocs = {
 // * arts_collections venue vs location
 var ActivitySchema = new Schema({
   id: String,
-  user_id: String,
+  user_id: Number,
   username: String,
   doc_type: String,
-  user_id: String,
   time_range: String,
   TITLE : {
     type: String,

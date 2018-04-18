@@ -6,7 +6,7 @@ var Config = require('../helpers/configuration.js')
 
 //TODO: Add more fields once they are known
 var PersonSchema = new Schema({
-  user_id : String,
+  user_id : Number,
   username : String,
   PREFIX : String,
   PFNAME : String,
