@@ -30,3 +30,6 @@ node_modules
 npm-debug.log
 
 .DS_Store
+
+# We use docker so we do not require a package-lock in the repo
+package-lock.json
