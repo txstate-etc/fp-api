@@ -15,10 +15,32 @@ router.route('/all')
     });
   });
 
+router.route('/list')
+  .get(function(req, res, next) {
+    var person_filters = common_filters(req.query)
+    var [skip, limit] = skip_limit(req.query);
+    Promise.all([
+      Person.find(person_filters).count(),
+      lookup_person(person_filters, 0, limit)
+    ])
+    .then(function (results) {
+      var [people_count, people] = results
+      res.json({
+        total: people_count,
+        results: people
+      })
+    })
+    .catch(function (err) {
+      console.log(err)
+      next(err)
+    })
+  });
+
 router.route('/name')
   .get(function(req, res, next) {
     search_person(req, res, next, name_filters(req.query.q));
   });
+
 
 router.route('/interest')
   .get(function(req, res, next) {
@@ -62,15 +84,19 @@ var search_activity = function (req, res, next, activity_filters) {
 var search_person = function (req, res, next, person_filters) {
   var [skip, limit] = skip_limit(req.query);
   person_filters.mergeHash(common_filters(req.query));
-  Person.find(person_filters).skip(skip).limit(limit)
+  lookup_person(person_filters, skip, limit)
   .then(function (people) {
-    var ret = people.map(function (person) { return person.basic_info(); });
-    res.json(ret);
+    res.json(people);
   })
   .catch(function(err){
     console.log(err)
     next(err)
   });
+}
+
+var lookup_person = async function(person_filters, skip = 0, limit = 100) {
+  var people = await Person.find(person_filters).skip(skip).limit(limit)
+  return people.map(function (person) { return person.basic_info() })
 }
 
 var lookup_activity = async function(activity_filters, person_filters, skip = 0, limit = 100) {
@@ -102,7 +128,7 @@ var lookup_all = async function (query) {
   var [skip, limit] = skip_limit(query);
   var [people_count, people, interest_count, interest, publication_count, publication, grant_count, grant, award_count, award] = await Promise.all([
     Person.find(person_filters).count(),
-    Person.find(person_filters).limit(limit),
+    lookup_person(person_filters, 0, limit),
     Activity.find({ $text: { $search: query.q || '' }, 'doc_type': Activity.type_profile }).count(),
     lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': Activity.type_profile }, common_filters(query), 0, limit),
     Activity.find({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_scholarly } }).count(),
@@ -113,11 +139,10 @@ var lookup_all = async function (query) {
     lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_award } }, common_filters(query), 0, limit),
   ]);
 
-  var people_basic_info = people.map(function (person) { return person.basic_info(); });
   return {
     name: {
       total: people_count,
-      results: people_basic_info
+      results: people
     },
     publication: {
       total: publication_count,
