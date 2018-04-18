@@ -196,6 +196,7 @@ var ActivitySchema = new Schema({
 
 ActivitySchema.index({user_id: 1});
 ActivitySchema.index({'$**': 'text'});
+ActivitySchema.index({cached_full_description_version: 1});
 
 var type_profile = 'PROFILE';
 ActivitySchema.statics.type_profile = type_profile;
@@ -207,6 +208,18 @@ var types_grant = ['CONGRANT'];
 ActivitySchema.statics.types_grant = types_grant;
 var types_service = ['SERVICE_PROFESSIONAL', 'SERVICE_UNIVERSITY', 'SERVICE_PUBLIC'];
 ActivitySchema.statics.types_service = types_service;
+
+ActivitySchema.statics.watch_and_cache = function () {
+  var Activity = mongoose.model('Activity');
+  Activity.find({ cached_full_description_version: { $ne: global.app_version } }).limit(50)
+  .then(function (activities) {
+    activities.map(function(act) { return act.full_description() })
+  })
+  .catch(function (err)  {
+    console.log(err)
+  })
+  setTimeout(Activity.watch_and_cache, 5000)
+}
 
 ActivitySchema.methods.translate = function () {
   var activity = this;
@@ -270,10 +283,9 @@ ActivitySchema.methods.full_description = function () {
   } else if (activity.isService()) {
     activity.cached_full_description = formatServiceText(activity);
   }
-  if (activity.cached_full_description) {
-    activity.cached_full_description_version = global.app_version
-    activity.save()
-  }
+
+  activity.cached_full_description_version = global.app_version
+  activity.save()
   return activity.cached_full_description
 }
 

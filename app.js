@@ -10,6 +10,8 @@ var department = require('./routes/department');
 var search = require('./routes/search');
 var files = require('./routes/files');
 
+var Activity = require('./models/activity');
+
 require('./helpers/extensions.js');
 
 global.app_version = 1;
@@ -47,6 +49,7 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log("DB connection alive");
+  Activity.watch_and_cache()
 })
 
 var handlebars = require('./fp-handlebars').getInstance();
