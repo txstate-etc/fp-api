@@ -188,7 +188,10 @@ var ActivitySchema = new Schema({
   //profile
   BIO : String,
   RESEARCH_INTERESTS : String,
-  TEACHING_INTERESTS : String
+  TEACHING_INTERESTS : String,
+  // internal use
+  cached_full_description: String,
+  cached_full_description_version: Number
 });
 
 ActivitySchema.index({user_id: 1});
@@ -208,23 +211,15 @@ ActivitySchema.statics.types_service = types_service;
 ActivitySchema.methods.translate = function () {
   var activity = this;
   var ret = {};
+  ret.full_description = activity.full_description()
   if (activity.isProfile()) {
     ret.type = 'profile';
-    var interests = [];
-    if (activity.RESEARCH_INTERESTS)
-      interests.push('<strong class="research">Research:</strong> <span class="research">'+activity.RESEARCH_INTERESTS + '</span>');
-    if (activity.TEACHING_INTERESTS)
-      interests.push('<strong class="teaching">Teaching:</strong> <span class="teaching">'+activity.TEACHING_INTERESTS + '</span>');
-    ret.full_description = interests.join('<br>');
   } else if (activity.isScholarly()) {
     ret.type = 'scholarly';
-    ret.full_description = buildScholarlyCreativeCitation(activity, citeprocs.apa)
   } else if (activity.isAward()) {
     ret.type = 'award';
-    ret.full_description = formatAwardText(activity);
   } else if (activity.isGrant()) {
     ret.type = 'grant';
-    ret.full_description = formatGrantText(activity);
   } else if (activity.isService()) {
     ret.type = 'service';
     ret.role = activity.ROLE || "Role Not Specified";
@@ -233,7 +228,6 @@ ActivitySchema.methods.translate = function () {
     ret.city = activity.CITY;
     ret.state = activity.STATE;
     ret.service_period = buildServiceDate(activity);
-    ret.full_description = formatServiceText(activity);
   }
   return ret;
 }
@@ -252,6 +246,35 @@ ActivitySchema.methods.isGrant = function () {
 }
 ActivitySchema.methods.isService = function () {
   return types_service.indexOf(this.doc_type) > -1;
+}
+
+ActivitySchema.methods.full_description = function () {
+  var activity = this;
+  if (activity.cached_full_description && activity.cached_full_description_version >= global.app_version) {
+    return activity.cached_full_description
+  }
+
+  if (activity.isProfile()) {
+    var interests = [];
+    if (activity.RESEARCH_INTERESTS)
+      interests.push('<strong class="research">Research:</strong> <span class="research">'+activity.RESEARCH_INTERESTS + '</span>');
+    if (activity.TEACHING_INTERESTS)
+      interests.push('<strong class="teaching">Teaching:</strong> <span class="teaching">'+activity.TEACHING_INTERESTS + '</span>');
+    activity.cached_full_description = interests.join('<br>');
+  } else if (activity.isScholarly()) {
+    activity.cached_full_description = buildScholarlyCreativeCitation(activity, citeprocs.apa)
+  } else if (activity.isAward()) {
+    activity.cached_full_description = formatAwardText(activity);
+  } else if (activity.isGrant()) {
+    activity.cached_full_description = formatGrantText(activity);
+  } else if (activity.isService()) {
+    activity.cached_full_description = formatServiceText(activity);
+  }
+  if (activity.cached_full_description) {
+    activity.cached_full_description_version = global.app_version
+    activity.save()
+  }
+  return activity.cached_full_description
 }
 
 module.exports = mongoose.model('Activity', ActivitySchema);

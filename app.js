@@ -12,6 +12,8 @@ var files = require('./routes/files');
 
 require('./helpers/extensions.js');
 
+global.app_version = 1;
+
 var app = express();
 
 app.use(logger('dev'));
