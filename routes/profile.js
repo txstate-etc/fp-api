@@ -115,7 +115,7 @@ router.route('/:userid/activity/:type')
         return;
       }
 
-      ret.person = person.basic_info();
+      ret.person = person.advanced_info();
       var activityYearMap = new Map();
       activities.forEach(function(activity) {
         var activityYear;
