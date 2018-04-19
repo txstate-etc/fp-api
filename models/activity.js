@@ -212,7 +212,13 @@ ActivitySchema.statics.watch_and_cache = function () {
   var Activity = mongoose.model('Activity');
   Activity.find({ cached_full_description_version: { $ne: global.app_version } }).limit(50)
   .then(function (activities) {
-    activities.map(function(act) { return act.full_description() })
+    activities.map(function(act) {
+      try {
+        return act.full_description()
+      } catch (err) {
+        console.log(act, err);
+      }
+    })
   })
   .catch(function (err)  {
     console.log(err)

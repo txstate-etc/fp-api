@@ -84,7 +84,7 @@ module.exports = function() {
   }
 }
 
-function getItemType(dmType, activity) {
+function getItemType(dmType, activity, secondtry = false) {
   switch (dmType) {
     case "Abstract":
     case "Journal Article":
@@ -116,25 +116,19 @@ function getItemType(dmType, activity) {
       //for the title_secondary. is there a fool-proof way to tell if it is a book or journal?
       if (activity.JOURNAL_NAME) {
         return "article";
-      }
-      else if (activity.TITLE_SECONDARY) {
-        return "chapter";
-      }
-      else {
-        return "book";
-      }
+      } else return defaultItemType(activity)
     case "Other":
-      if (activity.CONTYPEOTHER) {
+      if (activity.CONTYPEOTHER && !secondtry) {
         //TODO: Check "flexible matches" to try to figure out the type
-        return getItemType(activity.CONTYPEOTHER, activity)
-      }
+        return getItemType(activity.CONTYPEOTHER, activity, true)
+      } else return defaultItemType(activity)
     default:
-      if (activity.TITLE_SECONDARY)
-        return "chapter";
-      else {
-        return "book";
-      }
+      return defaultItemType(activity)
   }
+}
+
+function defaultItemType(activity) {
+  return activity.TITLE_SECONDARY ? "chapter" : "book";
 }
 
 function isPeriodical(type) {

@@ -45,7 +45,7 @@ mongoose.connect('mongodb://'+db_userpassword_prefix+db_host+':'+db_port+'/'+db_
 })
 .then(function () {
   console.log("DB connection alive");
-  Activity.watch_and_cache()
+  setTimeout(Activity.watch_and_cache, 5000);
 })
 .catch(function (err) {
   console.log(err)
