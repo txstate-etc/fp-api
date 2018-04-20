@@ -29,6 +29,12 @@ Object.defineProperty(Object.prototype, "mergeHash", {
   }
 });
 
+Object.defineProperty(Date.prototype, "isValid", {
+  value: function () {
+    return !isNaN(this.getTime())
+  }
+});
+
 RegExp.quote = function (str) {
   return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }

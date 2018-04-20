@@ -10,7 +10,7 @@ router.route('/cv/:userid/:filename')
     Person.findOne({user_id: req.params.userid})
     .then(function (person) {
       if (!person || !person.UPLOAD_VITA) res.sendStatus(404)
-      else return serve_file(res, person.UPLOAD_VITA, req.params.filename)
+      else return serve_file(req, res, person.UPLOAD_VITA, req.params.filename)
     })
     .catch(function (err) {
       console.log(err)
@@ -23,7 +23,7 @@ router.route('/photo/:userid/:filename')
     Person.findOne({user_id: req.params.userid})
     .then(function (person) {
       if (!person || !person.UPLOAD_PHOTO) res.sendStatus(404)
-      else return serve_file(res, person.UPLOAD_PHOTO, req.params.filename)
+      else return serve_file(req, res, person.UPLOAD_PHOTO, req.params.filename)
     })
     .catch(function (err) {
       console.log(err)
@@ -36,14 +36,26 @@ router.route('/attachment/:activityid/:filename')
 
   })
 
-var serve_file = function (res, path, filename) {
+var serve_file = function (req, res, path, filename) {
   return new Promise(function(resolve, reject) {
+    var filepath = global.dm_files_path+path;
     if (!filename) filename = Path.basename(path);
     res.setHeader('Content-Disposition', 'attachment;filename='+filename);
-    var stream = fs.createReadStream(global.dm_files_path+path);
-    stream.on('error', function (err) { reject(err) });
-    stream.on('readable', resolve);
-    stream.pipe(res);
+    var ifsince = new Date(req.headers['if-modified-since'])
+    fs.stat(filepath, function (err, stats) {
+      if (err) return reject(err)
+      var modtime = stats.mtime
+      if (ifsince.isValid() && modtime <= ifsince) {
+        res.sendStatus(304);
+        resolve(true);
+      } else {
+        res.setHeader('Last-Modified', new Date());
+        var stream = fs.createReadStream(filepath);
+        stream.on('error', function (err) { reject(err) });
+        stream.on('readable', resolve);
+        stream.pipe(res);
+      }
+    });
   })
 }
 
