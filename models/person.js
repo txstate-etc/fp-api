@@ -102,7 +102,8 @@ PersonSchema.methods.advanced_info = function () {
   ret.office_location = "";
   ret.office_location += (person.BUILDING) ? `${person.BUILDING} ` : "";
   ret.office_location += (person.ROOMNUM) ? `${person.ROOMNUM}` : "";
-  ret.phone_number = `(${person.OPHONE1}) ${person.OPHONE2}-${person.OPHONE3}`
+  if (person.OPHONE1 && person.OPHONE2 && person.OPHONE3)
+    ret.phone_number = `(${person.OPHONE1}) ${person.OPHONE2}-${person.OPHONE3}`
 
   return ret;
 }
