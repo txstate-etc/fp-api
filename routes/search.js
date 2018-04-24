@@ -107,7 +107,7 @@ var lookup_activity = async function(activity_filters, person_filters, skip = 0,
   }
   if (filtered_userids.length > 0) activity_filters['user_id'] = { $in: filtered_userids };
 
-  var acts = await Activity.find(activity_filters).skip(skip).limit(limit);
+  var acts = await Activity.find(activity_filters, {score: {$meta: 'textScore'}}).sort({score: { $meta: 'textScore' }}).skip(skip).limit(limit);
   var userids = acts.distinct(function (act) { return act.user_id });
   var people = await Person.find({ user_id: { $in : userids } });
 
@@ -126,17 +126,18 @@ var lookup_activity = async function(activity_filters, person_filters, skip = 0,
 var lookup_all = async function (query) {
   var person_filters = common_filters(query).mergeHash(name_filters(query.q));
   var [skip, limit] = skip_limit(query);
+  var text_search = { $search: query.q || '' }
   var [people_count, people, interest_count, interest, publication_count, publication, grant_count, grant, award_count, award] = await Promise.all([
     Person.find(person_filters).count(),
     lookup_person(person_filters, 0, limit),
-    Activity.find({ $text: { $search: query.q || '' }, 'doc_type': Activity.type_profile }).count(),
-    lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': Activity.type_profile }, common_filters(query), 0, limit),
-    Activity.find({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_scholarly } }).count(),
-    lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_scholarly } }, common_filters(query), 0, limit),
-    Activity.find({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_grant } }).count(),
-    lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_grant } }, common_filters(query), 0, limit),
-    Activity.find({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_award } }).count(),
-    lookup_activity({ $text: { $search: query.q || '' }, 'doc_type': { $in: Activity.types_award } }, common_filters(query), 0, limit),
+    Activity.find({ $text: text_search, 'doc_type': Activity.type_profile }).count(),
+    lookup_activity({ $text: text_search, 'doc_type': Activity.type_profile }, common_filters(query), 0, limit),
+    Activity.find({ $text: text_search, 'doc_type': { $in: Activity.types_scholarly } }).count(),
+    lookup_activity({ $text: text_search, 'doc_type': { $in: Activity.types_scholarly } }, common_filters(query), 0, limit),
+    Activity.find({ $text: text_search, 'doc_type': { $in: Activity.types_grant } }).count(),
+    lookup_activity({ $text: text_search, 'doc_type': { $in: Activity.types_grant } }, common_filters(query), 0, limit),
+    Activity.find({ $text: text_search, 'doc_type': { $in: Activity.types_award } }).count(),
+    lookup_activity({ $text: text_search, 'doc_type': { $in: Activity.types_award } }, common_filters(query), 0, limit),
   ]);
 
   return {
