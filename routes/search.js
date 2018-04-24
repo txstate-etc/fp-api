@@ -71,7 +71,10 @@ var search_activity = function (req, res, next, activity_filters) {
   var query = req.query.q || '';
   var [skip, limit] = skip_limit(req.query);
   activity_filters['$text'] = { $search: query };
-  lookup_activity(activity_filters, common_filters(req.query), skip, limit)
+  fetch_eligible_person_filter(req.query)
+  .then(function (eligibility_filter) {
+    return lookup_activity(activity_filters.mergeHash(eligibility_filter), skip, limit)
+  })
   .then(function (ret) {
     res.json(ret);
   })
@@ -99,14 +102,15 @@ var lookup_person = async function(person_filters, skip = 0, limit = 100) {
   return people.map(function (person) { return person.basic_info() })
 }
 
-var lookup_activity = async function(activity_filters, person_filters, skip = 0, limit = 100) {
-  var filtered_userids = [];
-  if (!person_filters.emptyHash()) {
-    var people = await Person.find(person_filters, 'user_id');
-    filtered_userids = people.map(function (person) { return person.user_id });
-  }
-  if (filtered_userids.length > 0) activity_filters['user_id'] = { $in: filtered_userids };
+var fetch_eligible_person_filter = async function(query) {
+  var filters = common_filters(query);
+  if (filters.emptyHash()) return {}
+  var people = await Person.find(filters, 'user_id');
+  var filtered_userids = people.map(function (person) { return person.user_id });
+  return { user_id: { $in: filtered_userids } }
+}
 
+var lookup_activity = async function(activity_filters, skip = 0, limit = 100) {
   var acts = await Activity.find(activity_filters, {score: {$meta: 'textScore'}}).sort({score: { $meta: 'textScore' }}).skip(skip).limit(limit);
   var userids = acts.distinct(function (act) { return act.user_id });
   var people = await Person.find({ user_id: { $in : userids } });
@@ -124,20 +128,23 @@ var lookup_activity = async function(activity_filters, person_filters, skip = 0,
 }
 
 var lookup_all = async function (query) {
-  var person_filters = common_filters(query).mergeHash(name_filters(query.q));
+  var eligibility_filter = await fetch_eligible_person_filter(query)
+  var person_filters = name_filters(query.q).mergeHash(common_filters(query));
+  var activity_filters = { $text: { $search: query.q || '' } }.mergeHash(eligibility_filter)
+
   var [skip, limit] = skip_limit(query);
-  var text_search = { $search: query.q || '' }
+
   var [people_count, people, interest_count, interest, publication_count, publication, grant_count, grant, award_count, award] = await Promise.all([
     Person.find(person_filters).count(),
     lookup_person(person_filters, 0, limit),
-    Activity.find({ $text: text_search, 'doc_type': Activity.type_profile }).count(),
-    lookup_activity({ $text: text_search, 'doc_type': Activity.type_profile }, common_filters(query), 0, limit),
-    Activity.find({ $text: text_search, 'doc_type': { $in: Activity.types_scholarly } }).count(),
-    lookup_activity({ $text: text_search, 'doc_type': { $in: Activity.types_scholarly } }, common_filters(query), 0, limit),
-    Activity.find({ $text: text_search, 'doc_type': { $in: Activity.types_grant } }).count(),
-    lookup_activity({ $text: text_search, 'doc_type': { $in: Activity.types_grant } }, common_filters(query), 0, limit),
-    Activity.find({ $text: text_search, 'doc_type': { $in: Activity.types_award } }).count(),
-    lookup_activity({ $text: text_search, 'doc_type': { $in: Activity.types_award } }, common_filters(query), 0, limit),
+    Activity.find({'doc_type': Activity.type_profile}.mergeHash(activity_filters)).count(),
+    lookup_activity({'doc_type': Activity.type_profile}.mergeHash(activity_filters), 0, limit),
+    Activity.find({'doc_type': { $in: Activity.types_scholarly } }.mergeHash(activity_filters)).count(),
+    lookup_activity({'doc_type': { $in: Activity.types_scholarly } }.mergeHash(activity_filters), 0, limit),
+    Activity.find({'doc_type': { $in: Activity.types_grant } }.mergeHash(activity_filters)).count(),
+    lookup_activity({'doc_type': { $in: Activity.types_grant } }.mergeHash(activity_filters), 0, limit),
+    Activity.find({'doc_type': { $in: Activity.types_award } }.mergeHash(activity_filters)).count(),
+    lookup_activity({'doc_type': { $in: Activity.types_award } }.mergeHash(activity_filters), 0, limit),
   ]);
 
   return {
