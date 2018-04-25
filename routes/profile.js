@@ -19,22 +19,22 @@ router.route('/:userid')
         "user_id" : userid,
         "doc_type" : { $in: Activity.types_scholarly },
         "STATUS" : {$in : ['Published', 'Accepted / In Press', 'Completed']}
-      }).sort({"time_range" : -1}).limit(5),
+      }).sort({PROFILE_FEATURE: -1, "time_range" : -1}).limit(5),
 
       Activity.find({
         "user_id" : userid,
         "doc_type" : { $in: Activity.types_award }
-      }).sort({"time_range" : -1}).limit(5),
+      }).sort({PROFILE_FEATURE: -1, "time_range" : -1, NAME : 1}).limit(5),
 
       Activity.find({
         "user_id" : userid,
         "doc_type" : { $in: Activity.types_grant }
-      }).sort({"time_range" : -1}).limit(5),
+      }).sort({PROFILE_FEATURE: -1, "time_range" : -1}).limit(5),
 
       Activity.find({
         "user_id": userid,
         "doc_type" : { $in: Activity.types_service }
-      }).sort({"time_range" : -1}).limit(5)
+      }).sort({PROFILE_FEATURE: -1, "time_range" : -1}).limit(5)
     ]).then(function (results) {
       var [person, bio, publications, awards, grants, service] = results;
 

@@ -21,6 +21,7 @@ var ActivitySchema = new Schema({
   username: String,
   doc_type: String,
   time_range: String,
+  PROFILE_FEATURE : Boolean,
   TITLE : {
     type: String,
     alias: 'title'
