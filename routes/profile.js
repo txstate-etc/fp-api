@@ -86,7 +86,7 @@ router.route('/:userid/activity/:type')
     switch(type) {
         case 'scholarly-creative':
           conditions.doc_type = { $in: Activity.types_scholarly }
-          ret.activity_title = "Scholarly Creative Works";
+          ret.activity_title = "Scholarly/Creative Works";
           break;
         case 'awards':
           conditions.doc_type = { $in: Activity.types_award }
