@@ -3,8 +3,9 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Path = require('path');
 var Config = require('../helpers/configuration.js')
-var Faced = require('faced')
-var faced = new Faced()
+var cv = require('opencv')
+var readChunk = require('read-chunk')
+var fileType = require('file-type')
 
 //TODO: Add more fields once they are known
 var PersonSchema = new Schema({
@@ -35,12 +36,13 @@ var PersonSchema = new Schema({
       is_academic: Boolean
     }
   }],
-  cached_face_detection: { x: Number, y: Number, width: Number, height: Number, imgW: Number, imgH: Number }
+  cached_face_detection: { x: Number, y: Number, width: Number, height: Number, imgW: Number, imgH: Number },
+  cached_face_detection_version: Number
 });
 
 PersonSchema.index({user_id: 1});
 PersonSchema.index({UPLOAD_PHOTO: 1});
-PersonSchema.index({cached_face_detection: 1});
+PersonSchema.index({cached_face_detection_version: 1});
 PersonSchema.index({FNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 PersonSchema.index({LNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 PersonSchema.index({MNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
@@ -142,35 +144,45 @@ PersonSchema.methods.face_crop = function () {
 PersonSchema.methods.face_detection = async function () {
   var person = this
   if (!person.UPLOAD_PHOTO) return {}
-  if (person.cached_face_detection_photo == person.UPLOAD_PHOTO) return person.cached_face_detection
 
   var filepath = global.dm_files_path+person.UPLOAD_PHOTO
-  var info = await new Promise(function (resolve, reject) {
-    faced.detect(filepath, function (faces, image) {
-      if (!faces || faces.length != 1) return resolve({})
-      var face = faces[0];
-      resolve({x: face.getX(), y: face.getY(), width: face.getWidth(), height: face.getHeight(), imgW: image.width(), imgH: image.height()})
+  console.log(filepath)
+
+  var buffer = readChunk.sync(filepath, 0, 4100)
+  var data = fileType(buffer)
+  var ext = data ? data.ext : ''
+
+  var info = {}
+  if (['jpg','png','gif','tif','bmp'].includes(ext)) {
+    info = await new Promise(function(resolve,reject) {
+      cv.readImage(filepath, function (err, im) {
+        if (err) return resolve({});
+        im.detectObject(cv.FACE_CASCADE, {}, function (err, faces) {
+          if (err || !faces || faces.length != 1) return resolve({});
+          var face = faces[0];
+          resolve({x: face.x, y: face.y, width: face.width, height: face.height, imgW: im.width(), imgH: im.height()})
+        })
+      })
     })
-  })
+  }
+  person.cached_face_detection_version = global.app_version
   person.cached_face_detection = info
   person.save()
-  return info
 }
 
-PersonSchema.statics.watch_and_cache = function () {
+PersonSchema.statics.watch_and_cache = async function () {
   var Person = mongoose.model('Person');
-  Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection: { $exists: false }}).limit(50)
-  .then(function (people) {
-    if (people.length > 0) console.log('processing '+people.length+' profile photos looking for faces...')
-    return Promise.all(people.map(function(person) { return person.face_detection() }))
-  })
-  .then(function () {
-    setTimeout(Person.watch_and_cache, 9000)
-  })
-  .catch(function (err)  {
+  var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection_version: { $ne: global.app_version } }).limit(50)
+
+  if (people.length > 0) console.log('processing '+people.length+' profile photos looking for faces...')
+  try {
+    for (person of people) {
+      await person.face_detection()
+    }
+  } catch(err)  {
     console.log(err)
-    setTimeout(Person.watch_and_cache, 9000)
-  })
+  }
+  setTimeout(Person.watch_and_cache, 9000)
 }
 
 module.exports = mongoose.model('Person', PersonSchema);

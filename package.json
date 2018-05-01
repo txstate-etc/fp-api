@@ -12,9 +12,11 @@
     "cookie-parser": ">=1.4.3",
     "debug": "~2",
     "express": "~4",
-    "faced": "chriszs/faced",
+    "file-type": ">=7.7.1",
     "handlebars": "~4",
     "mongoose": "~5",
-    "morgan": "~1"
+    "morgan": "~1",
+    "opencv": ">=6.0.0",
+    "read-chunk": ">=2.1.0"
   }
 }
