@@ -3,6 +3,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Path = require('path');
 var Config = require('../helpers/configuration.js')
+var Faced = require('faced')
+var faced = new Faced()
 
 //TODO: Add more fields once they are known
 var PersonSchema = new Schema({
@@ -32,10 +34,13 @@ var PersonSchema = new Schema({
       department: String,
       is_academic: Boolean
     }
-  }]
+  }],
+  cached_face_detection: { x: Number, y: Number, width: Number, height: Number, imgW: Number, imgH: Number }
 });
 
 PersonSchema.index({user_id: 1});
+PersonSchema.index({UPLOAD_PHOTO: 1});
+PersonSchema.index({cached_face_detection: 1});
 PersonSchema.index({FNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 PersonSchema.index({LNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 PersonSchema.index({MNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
@@ -93,6 +98,7 @@ PersonSchema.methods.advanced_info = function () {
   if (person.UPLOAD_PHOTO) {
     var ppfname = Path.basename(person.UPLOAD_PHOTO);
     ret.portrait = {
+      face: person.face_crop(),
       filename: ppfname,
       path: Config.createlink('/files/photo/'+person.user_id+'/'+ppfname)
     }
@@ -106,6 +112,65 @@ PersonSchema.methods.advanced_info = function () {
     ret.phone_number = `(${person.OPHONE1}) ${person.OPHONE2}-${person.OPHONE3}`
 
   return ret;
+}
+
+PersonSchema.methods.face_crop = function () {
+  var face = this.cached_face_detection
+  var w = face.imgW;
+  var h = face.imgH;
+  var fw = face.width;
+  var fh = face.height;
+  var left = face.x;
+  var right = w-fw-face.x;
+  var top = face.y;
+  var bottom = h-fh-face.y;
+
+  var distance = Math.min(left, right, top, bottom);
+  var box = {
+    x: left - distance,
+    y: top - distance,
+    w: fw+2*distance,
+    h: fh+2*distance
+  }
+  return {
+    left: 100.0 * box.x / box.w,
+    top: 100.0 * box.y / box.w,
+    width: 100.0 * w / box.w
+  }
+}
+
+PersonSchema.methods.face_detection = async function () {
+  var person = this
+  if (!person.UPLOAD_PHOTO) return {}
+  if (person.cached_face_detection_photo == person.UPLOAD_PHOTO) return person.cached_face_detection
+
+  var filepath = global.dm_files_path+person.UPLOAD_PHOTO
+  var info = await new Promise(function (resolve, reject) {
+    faced.detect(filepath, function (faces, image) {
+      if (!faces || faces.length != 1) return resolve({})
+      var face = faces[0];
+      resolve({x: face.getX(), y: face.getY(), width: face.getWidth(), height: face.getHeight(), imgW: image.width(), imgH: image.height()})
+    })
+  })
+  person.cached_face_detection = info
+  person.save()
+  return info
+}
+
+PersonSchema.statics.watch_and_cache = function () {
+  var Person = mongoose.model('Person');
+  Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection: { $exists: false }}).limit(50)
+  .then(function (people) {
+    if (people.length > 0) console.log('processing '+people.length+' profile photos looking for faces...')
+    return Promise.all(people.map(function(person) { return person.face_detection() }))
+  })
+  .then(function () {
+    setTimeout(Person.watch_and_cache, 9000)
+  })
+  .catch(function (err)  {
+    console.log(err)
+    setTimeout(Person.watch_and_cache, 9000)
+  })
 }
 
 module.exports = mongoose.model('Person', PersonSchema);

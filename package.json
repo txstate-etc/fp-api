@@ -12,6 +12,7 @@
     "cookie-parser": ">=1.4.3",
     "debug": "~2",
     "express": "~4",
+    "faced": "chriszs/faced",
     "handlebars": "~4",
     "mongoose": "~5",
     "morgan": "~1"

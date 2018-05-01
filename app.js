@@ -11,7 +11,6 @@ var search = require('./routes/search');
 var files = require('./routes/files');
 
 var handlebars = require('./fp-handlebars').getInstance();
-var Activity = require('./models/activity');
 
 require('./helpers/extensions.js');
 
@@ -45,7 +44,10 @@ mongoose.connect('mongodb://'+db_userpassword_prefix+db_host+':'+db_port+'/'+db_
 })
 .then(function () {
   console.log("DB connection alive");
+  var Activity = require('./models/activity');
+  var Person = require('./models/person');
   setTimeout(Activity.watch_and_cache, 5000);
+  setTimeout(Person.watch_and_cache, 9000);
 })
 .catch(function (err) {
   console.log(err)
