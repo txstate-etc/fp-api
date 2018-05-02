@@ -118,16 +118,17 @@ router.route('/:userid/activity/:type')
       var activityYearMap = new Map();
       activities.forEach(function(activity) {
         var activityYear;
-        if (activity.DTY_PUB || activity.DTY_ACC) {
-          activityYear = activity.DTY_PUB || activity.DTY_ACC;
+        var time_range = activity.time_range;
+        var first_sort_year = time_range.substring(0,4);
+        var second_sort_year = time_range.substring(8,12);
+
+        activityYear = (first_sort_year == "YYYY")? second_sort_year : first_sort_year;
+        if (type != "grants") {
+          if (first_sort_year == "YYYY" && second_sort_year != "YYYY") {
+            activityYear = "current"
+          }
         }
-        else if (activity.DTY_END) {
-          activityYear = activity.DTY_END;
-        }
-        else if (activity.DTY_START) {
-          activityYear = "current";
-        }
-        else {
+        if (activityYear == "YYYY") {
           activityYear = "Date Not Specified";
         }
         if (!activityYearMap.has(activityYear)) {
@@ -135,6 +136,12 @@ router.route('/:userid/activity/:type')
         }
         activityYearMap.get(activityYear).push(activity.translate());
       })
+      //put the items with no date specified at the bottom
+      if (activityYearMap.has("Date Not Specified")) {
+        var notSpecified = activityYearMap.get("Date Not Specified");
+        activityYearMap.delete("Date Not Specified");
+        activityYearMap.set("Date Not Specified", notSpecified)
+      }
       ret.activities = [];
       activityYearMap.forEach(function(value, key, map) {
         ret.activities.push({year: key, items: value})
