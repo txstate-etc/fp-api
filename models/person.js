@@ -143,7 +143,6 @@ PersonSchema.methods.face_crop = function () {
   }
 }
 
-var cascade_path = path.join(path.dirname(require.resolve("opencv")), '..', 'data');
 PersonSchema.methods.face_detection = async function () {
   var person = this
   if (!person.UPLOAD_PHOTO) return {}
@@ -160,11 +159,15 @@ PersonSchema.methods.face_detection = async function () {
     info = await new Promise(function(resolve,reject) {
       cv.readImage(filepath, function (err, im) {
         if (err) return resolve({});
-        im.detectObject(cascade_path+'/haarcascade_frontalface_alt2.xml', {}, function (err, faces) {
-          if (err || !faces || faces.length == 0) return resolve({});
-          if (faces.length > 1) return resolve({imgW: im.width(), imgH: im.height()});
-          var face = faces[0];
-          resolve({x: face.x, y: face.y, width: face.width, height: face.height, imgW: im.width(), imgH: im.height()})
+        process_image(im, 'alt2')
+        .then(function (ifo) {
+          return ifo.width ? ifo : process_image(im, 'alt')
+        })
+        .then(function (ifo) {
+          return ifo.width ? ifo : process_image(im, 'default')
+        })
+        .then(function (ifo) {
+          resolve(ifo)
         })
       })
     })
@@ -173,6 +176,20 @@ PersonSchema.methods.face_detection = async function () {
   person.cached_face_detection = info
   person.save()
   return info
+}
+
+var cascade_path = path.join(path.dirname(require.resolve("opencv")), '..', 'data');
+var process_image = function(im, method) {
+  return new Promise(function (resolve, reject) {
+    setTimeout(function () { // since we do this three times, give the run loop a chance to run something else in between executions
+      im.detectObject(cascade_path+'/haarcascade_frontalface_'+method+'.xml', {}, function (err, faces) {
+        if (err || !faces || faces.length == 0) return resolve({});
+        if (faces.length > 1) return resolve({imgW: im.width(), imgH: im.height()});
+        var face = faces[0];
+        resolve({x: face.x, y: face.y, width: face.width, height: face.height, imgW: im.width(), imgH: im.height()})
+      })
+    }, 0);
+  })
 }
 
 PersonSchema.statics.watch_and_cache = async function () {
