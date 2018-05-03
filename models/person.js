@@ -6,6 +6,7 @@ var Config = require('../helpers/configuration.js')
 var cv = require('opencv')
 var readChunk = require('read-chunk')
 var fileType = require('file-type')
+var path = require('path');
 
 var PersonSchema = new Schema({
   user_id : Number,
@@ -117,6 +118,7 @@ PersonSchema.methods.advanced_info = function () {
 
 PersonSchema.methods.face_crop = function () {
   var face = this.cached_face_detection
+  if (!face.width || face.width == 0) return { detected: false, aspect: face.imgH && face.imgH > 0 ? face.imgW / parseFloat(face.imgH) : 0 }
   var w = face.imgW;
   var h = face.imgH;
   var fw = face.width;
@@ -134,12 +136,14 @@ PersonSchema.methods.face_crop = function () {
     h: fh+2*distance
   }
   return {
+    detected: true,
     left: 100.0 * box.x / box.w,
     top: 100.0 * box.y / box.w,
     width: 100.0 * w / box.w
   }
 }
 
+var cascade_path = path.join(path.dirname(require.resolve("opencv")), '..', 'data');
 PersonSchema.methods.face_detection = async function () {
   var person = this
   if (!person.UPLOAD_PHOTO) return {}
@@ -147,7 +151,7 @@ PersonSchema.methods.face_detection = async function () {
   var filepath = global.dm_files_path+person.UPLOAD_PHOTO
   console.log(filepath)
 
-  var buffer = readChunk.sync(filepath, 0, 4100)
+  var buffer = await readChunk(filepath, 0, 4100)
   var data = fileType(buffer)
   var ext = data ? data.ext : ''
 
@@ -156,8 +160,9 @@ PersonSchema.methods.face_detection = async function () {
     info = await new Promise(function(resolve,reject) {
       cv.readImage(filepath, function (err, im) {
         if (err) return resolve({});
-        im.detectObject(cv.FACE_CASCADE, {}, function (err, faces) {
-          if (err || !faces || faces.length != 1) return resolve({});
+        im.detectObject(cascade_path+'/haarcascade_frontalface_alt2.xml', {}, function (err, faces) {
+          if (err || !faces || faces.length == 0) return resolve({});
+          if (faces.length > 1) return resolve({imgW: im.width(), imgH: im.height()});
           var face = faces[0];
           resolve({x: face.x, y: face.y, width: face.width, height: face.height, imgW: im.width(), imgH: im.height()})
         })
@@ -167,6 +172,7 @@ PersonSchema.methods.face_detection = async function () {
   person.cached_face_detection_version = global.app_version
   person.cached_face_detection = info
   person.save()
+  return info
 }
 
 PersonSchema.statics.watch_and_cache = async function () {
