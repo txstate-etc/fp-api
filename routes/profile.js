@@ -154,6 +154,4 @@ router.route('/:userid/activity/:type')
     })
   })
 
-//TODO: Does there need to be a route for retrieving profile pictures? Is that a different endpoint?
-
 module.exports = router;

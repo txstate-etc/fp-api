@@ -1,4 +1,4 @@
-//schema for activities (scholarly/creative, service, awards, grants)
+//schema for activities (profile, scholarly/creative, service, awards, grants)
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 require('../helpers/citation-helper.js')();
@@ -9,12 +9,6 @@ var citeprocs = {
   apa: new Citeproc('apa')
 }
 
-//NOTES
-// * DM uses 'PUBLISHER' for the venue of a book review. What does CSL use? PUBLISHER might have 2 different meanings, depending on content type
-// * Is publication country used in the citation?
-// * TODO: Add dates
-// * Art exhibit location, okay to change to event-place?
-// * arts_collections venue vs location
 var ActivitySchema = new Schema({
   id: String,
   user_id: Number,

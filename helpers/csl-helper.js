@@ -139,7 +139,6 @@ function isPeriodical(type) {
 function buildCSLName(item) {
   var name = {};
   name.given = item.FNAME;
-  //adding the middle name to the given name makes it print the full first name instead of just an initial...
   if (item.MNAME) {
     name.given += ` ${item.MNAME}`;
   }

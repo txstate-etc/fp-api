@@ -1,4 +1,4 @@
-//schema for faculty members, includes PCI, PROFILE, admin, admin_perm
+//schema for faculty members, includes PCI, admin, admin_perm
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Path = require('path');
@@ -7,7 +7,6 @@ var cv = require('opencv')
 var readChunk = require('read-chunk')
 var fileType = require('file-type')
 
-//TODO: Add more fields once they are known
 var PersonSchema = new Schema({
   user_id : Number,
   username : String,
