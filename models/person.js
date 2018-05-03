@@ -75,6 +75,15 @@ PersonSchema.methods.basic_info = function () {
   if (person.positions && person.positions.length > 0 && person.positions[0].organization && person.positions[0].organization.department)
     ret.primary_department = person.positions[0].organization.department;
 
+  if (person.UPLOAD_PHOTO) {
+    var ppfname = Path.basename(person.UPLOAD_PHOTO);
+    ret.portrait = {
+      face: person.face_crop(),
+      filename: ppfname,
+      path: Config.createlink('/files/photo/'+person.user_id+'/'+ppfname)
+    }
+  }
+
   return ret;
 }
 
@@ -97,15 +106,6 @@ PersonSchema.methods.advanced_info = function () {
     }
   }
 
-  if (person.UPLOAD_PHOTO) {
-    var ppfname = Path.basename(person.UPLOAD_PHOTO);
-    ret.portrait = {
-      face: person.face_crop(),
-      filename: ppfname,
-      path: Config.createlink('/files/photo/'+person.user_id+'/'+ppfname)
-    }
-  }
-
   ret.email = person.EMAIL;
   ret.office_location = "";
   ret.office_location += (person.BUILDING) ? `${person.BUILDING} ` : "";
@@ -115,6 +115,7 @@ PersonSchema.methods.advanced_info = function () {
 
   return ret;
 }
+
 
 PersonSchema.methods.face_crop = function () {
   var face = this.cached_face_detection

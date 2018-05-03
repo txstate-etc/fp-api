@@ -67,6 +67,11 @@ router.route('/service')
     search_activity(req, res, next, {"doc_type" : { $in: Activity.types_service }})
   });
 
+router.route('/photo')
+  .get(async function(req, res, next) {
+    search_person(req, res, next, {UPLOAD_PHOTO:{$exists:true}});
+  })
+
 var search_activity = function (req, res, next, activity_filters) {
   var query = req.query.q || '';
   var [skip, limit] = skip_limit(req.query);
