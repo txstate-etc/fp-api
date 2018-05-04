@@ -6,7 +6,8 @@ var Config = require('../helpers/configuration.js')
 var cv = require('opencv')
 var readChunk = require('read-chunk')
 var fileType = require('file-type')
-var path = require('path');
+var path = require('path')
+var exif = require('fast-exif')
 
 var PersonSchema = new Schema({
   user_id : Number,
@@ -117,8 +118,8 @@ PersonSchema.methods.advanced_info = function () {
 }
 
 
-PersonSchema.methods.face_crop = function () {
-  var face = this.cached_face_detection
+PersonSchema.methods.face_crop = function (face) {
+  face = face || this.cached_face_detection
   if (!face.width || face.width == 0) return { detected: false, aspect: face.imgH && face.imgH > 0 ? face.imgW / parseFloat(face.imgH) : 0 }
   var w = face.imgW;
   var h = face.imgH;
@@ -154,12 +155,20 @@ PersonSchema.methods.face_detection = async function () {
   var buffer = await readChunk(filepath, 0, 4100)
   var data = fileType(buffer)
   var ext = data ? data.ext : ''
+  var exifdata = await exif.read(filepath)
 
   var info = {}
   if (['jpg','png','gif','tif','bmp'].includes(ext)) {
     info = await new Promise(function(resolve,reject) {
       cv.readImage(filepath, function (err, im) {
         if (err) return resolve({});
+        if (exifdata) {
+          var rotation = exifdata.image.Orientation
+          if (rotation == 3) im.rotate(180)
+          if (rotation == 6) im.rotate(90)
+          if (rotation == 8) im.rotate(-90)
+        }
+
         process_image(im, 'alt2')
         .then(function (ifo) {
           return ifo.width ? ifo : process_image(im, 'alt')
@@ -184,8 +193,9 @@ var process_image = function(im, method) {
   return new Promise(function (resolve, reject) {
     setTimeout(function () { // since we do this three times, give the run loop a chance to run something else in between executions
       im.detectObject(cascade_path+'/haarcascade_frontalface_'+method+'.xml', {}, function (err, faces) {
-        if (err || !faces || faces.length == 0) return resolve({});
-        if (faces.length > 1) return resolve({imgW: im.width(), imgH: im.height()});
+        if (err || !faces) return resolve({});
+        faces = faces.filter(function (face) { return face.width / parseFloat(im.width()) > 0.15 })
+        if (faces.length == 0 || faces.length > 1) return resolve({imgW: im.width(), imgH: im.height()})
         var face = faces[0];
         resolve({x: face.x, y: face.y, width: face.width, height: face.height, imgW: im.width(), imgH: im.height()})
       })
