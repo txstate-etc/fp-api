@@ -130,18 +130,28 @@ PersonSchema.methods.face_crop = function (face) {
   var top = face.y;
   var bottom = h-fh-face.y;
 
-  var distance = Math.min(left, right, top, bottom);
-  var box = {
-    x: left - distance,
-    y: top - distance,
-    w: fw+2*distance,
-    h: fh+2*distance
+  var distance = Math.min(left, right, top, bottom)
+
+  var x = left - distance
+  var y = top - distance
+  var nw = fw+2*distance
+  var nh = fh+2*distance
+
+  if (nw < fw * 1.5) {
+    var needed = Math.floor(fw*1.5-nw);
+    var adjust = Math.min(w-nw, h-nh, needed)
+
+    nw += adjust
+    x -= Math.min(x, Math.max(Math.ceil(adjust/2.0), nw+x-w))
+    nh += adjust
+    y -= Math.min(y, Math.max(Math.ceil(adjust/2.0), nh+y-h))
   }
+
   return {
     detected: true,
-    left: 100.0 * box.x / box.w,
-    top: 100.0 * box.y / box.w,
-    width: 100.0 * w / box.w
+    left: 100.0 * x / nw,
+    top: 100.0 * y / nw,
+    width: 100.0 * w / nw
   }
 }
 
@@ -155,7 +165,12 @@ PersonSchema.methods.face_detection = async function () {
   var buffer = await readChunk(filepath, 0, 4100)
   var data = fileType(buffer)
   var ext = data ? data.ext : ''
-  var exifdata = await exif.read(filepath)
+  var exifdata = null
+  try {
+    exifdata = await exif.read(filepath)
+  } catch (err) {
+    // no exifdata, we'll live
+  }
 
   var info = {}
   if (['jpg','png','gif','tif','bmp'].includes(ext)) {
