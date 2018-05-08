@@ -262,7 +262,9 @@ ActivitySchema.methods.isService = function () {
 }
 
 function nl2br(str) {
-  return String(str).replace(/\r?\n/g, '<br>')
+  if (str && typeof(str) == 'string')
+    return str.replace(/\r?\n/g, '<br>')
+  return ''
 }
 ActivitySchema.methods.html_bio = function () {
   return nl2br(this.BIO)
