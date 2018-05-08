@@ -261,6 +261,19 @@ ActivitySchema.methods.isService = function () {
   return types_service.indexOf(this.doc_type) > -1;
 }
 
+function nl2br(str) {
+  return String(str).replace(/\r?\n/g, '<br>')
+}
+ActivitySchema.methods.html_bio = function () {
+  return nl2br(this.BIO)
+}
+ActivitySchema.methods.html_research_interests = function () {
+  return nl2br(this.RESEARCH_INTERESTS)
+}
+ActivitySchema.methods.html_teaching_interests = function () {
+  return nl2br(this.TEACHING_INTERESTS)
+}
+
 ActivitySchema.methods.full_description = function () {
   var activity = this;
   if (activity.cached_full_description && activity.cached_full_description_version >= global.app_version) {
@@ -270,9 +283,9 @@ ActivitySchema.methods.full_description = function () {
   if (activity.isProfile()) {
     var interests = [];
     if (activity.RESEARCH_INTERESTS)
-      interests.push('<strong class="research">Research:</strong> <span class="research">'+activity.RESEARCH_INTERESTS + '</span>');
+      interests.push('<strong class="research">Research:</strong> <span class="research">'+activity.html_research_interests() + '</span>');
     if (activity.TEACHING_INTERESTS)
-      interests.push('<strong class="teaching">Teaching:</strong> <span class="teaching">'+activity.TEACHING_INTERESTS + '</span>');
+      interests.push('<strong class="teaching">Teaching:</strong> <span class="teaching">'+activity.html_teaching_interests() + '</span>');
     activity.cached_full_description = interests.join('<br>');
   } else if (activity.isScholarly()) {
     activity.cached_full_description = buildScholarlyCreativeCitation(activity, citeprocs.apa)

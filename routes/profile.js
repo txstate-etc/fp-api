@@ -47,9 +47,9 @@ router.route('/:userid')
 
       // bio
       if (bio) {
-        profile.biography = bio.BIO;
-        profile.teaching_interests = bio.TEACHING_INTERESTS;
-        profile.research_interests = bio.RESEARCH_INTERESTS;
+        profile.biography = bio.html_bio();
+        profile.teaching_interests = bio.html_teaching_interests();
+        profile.research_interests = bio.html_research_interests();
       }
 
       // publications
