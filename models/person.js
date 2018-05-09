@@ -46,6 +46,7 @@ var PersonSchema = new Schema({
 PersonSchema.index({user_id: 1});
 PersonSchema.index({UPLOAD_PHOTO: 1});
 PersonSchema.index({cached_face_detection_version: 1});
+PersonSchema.index({lname_words_version: 1});
 PersonSchema.index({lname_words: 1}, {collation: {locale: 'en_US', strength: 2}});
 
 PersonSchema.virtual('display_name').get(function () {
