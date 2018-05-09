@@ -118,7 +118,7 @@ var fetch_eligible_person_filter = async function(query) {
 var lookup_activity = async function(activity_filters, skip = 0, limit = 100) {
   var acts = []
   if (activity_filters['$text']) {
-    var words = activity_filters['$text']['$search'].split(/[^\w\-]/)
+    var words = activity_filters['$text']['$search'].match(/[\w\-]+|"(?:\\"|[^"])+"/g)
     var promises = []
     var filters = JSON.parse(JSON.stringify(activity_filters)) // deep copy so we don't mutate activity_filters
     words.forEach((word) => {
@@ -130,22 +130,26 @@ var lookup_activity = async function(activity_filters, skip = 0, limit = 100) {
     var i = 0
     results.forEach((activities) => {
       activities.forEach((act) => {
-        if (acthash.has(act.id)) acthash.get(act.id).matchingwords++
+        if (acthash.has(act.id)) {
+          var entry = acthash.get(act.id)
+          entry.matchingwords++
+          entry.score += act.score
+        }
         else {
-          acthash.set(act.id, { matchingwords: 1, act: act })
+          acthash.set(act.id, { matchingwords: 1, score: act.score, act: act })
         }
       })
     })
     var entries = Array.from(acthash.values()).sort((a,b) => {
       if (a.matchingwords > b.matchingwords) return -1
       if (a.matchingwords < b.matchingwords) return 1
-      if (a.act.score > b.act.score) return -1
-      if (a.act.score < b.act.score) return 1
+      if (a.score > b.score) return -1
+      if (a.score < b.score) return 1
       return 0
     })
     acts = entries.map((entry) => { return entry.act })
   } else {
-    acts = await Activity.find(activity_filters, {score: {$meta: 'textScore'}}).sort({score: { $meta: 'textScore' }}).skip(skip).limit(limit);
+    acts = await Activity.find(activity_filters).skip(skip).limit(limit);
   }
   var userids = acts.distinct(function (act) { return act.user_id });
   var people = await Person.find({ user_id: { $in : userids } });
