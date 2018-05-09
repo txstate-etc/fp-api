@@ -220,7 +220,7 @@ var process_image = function(im, method) {
 
 function add_words(words, ...strings) {
   strings.forEach((str) => {
-    str.split(/\W+/).forEach((word) => {
+    if (str) str.split(/\W+/).forEach((word) => {
       words.add(word)
     })
   })
