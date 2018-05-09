@@ -39,15 +39,13 @@ var PersonSchema = new Schema({
   }],
   cached_face_detection: { x: Number, y: Number, width: Number, height: Number, imgW: Number, imgH: Number },
   cached_face_detection_version: Number,
-  lname_words: [String]
+  lname_words: [String],
+  lname_words_version: Number
 });
 
 PersonSchema.index({user_id: 1});
 PersonSchema.index({UPLOAD_PHOTO: 1});
 PersonSchema.index({cached_face_detection_version: 1});
-PersonSchema.index({FNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
-PersonSchema.index({LNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
-PersonSchema.index({MNAME: 1}, {collation: {locale: 'en_US', strength: 2}});
 PersonSchema.index({lname_words: 1}, {collation: {locale: 'en_US', strength: 2}});
 
 PersonSchema.virtual('display_name').get(function () {
@@ -220,9 +218,22 @@ var process_image = function(im, method) {
   })
 }
 
+function add_words(words, ...strings) {
+  strings.forEach((str) => {
+    str.split(/\W+/).forEach((word) => {
+      words.add(word)
+    })
+  })
+}
+
 PersonSchema.methods.lastname_index = function() {
   var person = this
-  person.lname_words = person.LNAME.split(/\W+/)
+  var words = new Set()
+  add_words(words, person.LNAME)
+  if (person.PFNAME) add_words(words, person.PFNAME)
+  else add_words(words, person.FNAME, person.MNAME)
+  person.lname_words = Array.from(words)
+  person.lname_words_version = global.app_version
   return person.save()
 }
 
@@ -239,7 +250,7 @@ PersonSchema.statics.watch_and_cache = async function () {
     console.log(err)
   }
 
-  people = await Person.find({ lname_words: { $exists: false } }).limit(100)
+  people = await Person.find({ lname_words_version: { $ne: global.app_version } }).limit(100)
   for (person of people) {
     await person.lastname_index()
   }

@@ -220,12 +220,7 @@ var common_filters = function (query) {
 var name_filters = function (querystr) {
   if (!querystr) return {};
   return {
-    '$or': [
-      { FNAME: { $regex: '^'+RegExp.quote(querystr), $options: '-i' } },
-      { LNAME: { $regex: '^'+RegExp.quote(querystr), $options: '-i' } },
-      { lname_words: { $regex: '^'+RegExp.quote(querystr), $options: '-i' } },
-      { MNAME: { $regex: '^'+RegExp.quote(querystr), $options: '-i' } }
-    ]
+    lname_words: { $regex: '^'+RegExp.quote(querystr), $options: '-i' }
   };
 }
 
