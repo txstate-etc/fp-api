@@ -219,8 +219,12 @@ var common_filters = function (query) {
 
 var name_filters = function (querystr) {
   if (!querystr) return {};
+  var word_matches = querystr.split(/[^\w\.]+/).map((word) => {
+    if (word.length == 0) return;
+    return { lname_words: { $regex: '^'+RegExp.quote(word), $options: '-i' } }
+  }).filter((f) => { return typeof(f) != 'undefined' })
   return {
-    lname_words: { $regex: '^'+RegExp.quote(querystr), $options: '-i' }
+    $or: word_matches
   };
 }
 

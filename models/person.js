@@ -220,12 +220,13 @@ var process_image = function(im, method) {
 
 function add_words(words, ...strings) {
   strings.forEach((str) => {
-    if (str) str.split(/\W+/).forEach((word) => {
-      words.add(word)
+    if (str) str.split(/[^\w\.]+/).forEach((word) => {
+      if (word.length > 1) words.add(word)
     })
   })
 }
 
+var lastname_index_version = 1
 PersonSchema.methods.lastname_index = function() {
   var person = this
   var words = new Set()
@@ -233,13 +234,13 @@ PersonSchema.methods.lastname_index = function() {
   if (person.PFNAME) add_words(words, person.PFNAME)
   else add_words(words, person.FNAME, person.MNAME)
   person.lname_words = Array.from(words)
-  person.lname_words_version = global.app_version
+  person.lname_words_version = lastname_index_version
   return person.save()
 }
 
 PersonSchema.statics.watch_and_cache = async function () {
   var Person = mongoose.model('Person');
-  var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection_version: { $ne: global.app_version } }).limit(50)
+  var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection_version: { $ne: global.app_version } }).limit(20)
 
   if (people.length > 0) console.log('processing '+people.length+' profile photos looking for faces...')
   try {
@@ -250,7 +251,7 @@ PersonSchema.statics.watch_and_cache = async function () {
     console.log(err)
   }
 
-  people = await Person.find({ lname_words_version: { $ne: global.app_version } }).limit(100)
+  people = await Person.find({ lname_words_version: { $ne: lastname_index_version } }).limit(100)
   for (person of people) {
     await person.lastname_index()
   }
