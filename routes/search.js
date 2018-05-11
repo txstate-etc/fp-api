@@ -217,12 +217,19 @@ var common_filters = function (query) {
   return filters;
 }
 
+var name_break = function (str) {
+  return str.replace(/[^\w\s\.\-]/g, '') // get rid of apostrophes and such
+    .replace(/[\s\.\-]+/g, ' ').trim() // control whitespace
+    .replace(/\b(\w) (\w)(?: (\w))?\b/g, '$1$2$3') // compress initials if they were spaced out or had periods
+    .split(/ /).filter(word => { return word.length > 1 }) // toss out single letters
+    .map(word => { return word.toLowerCase() })
+}
+
 var name_filters = function (querystr) {
   if (!querystr) return {};
-  var word_matches = querystr.split(/[^\w\.]+/).map((word) => {
-    if (word.length == 0) return;
+  var word_matches = name_break(querystr).map(word => {
     return { lname_words: { $regex: '^'+RegExp.quote(word), $options: '-i' } }
-  }).filter((f) => { return typeof(f) != 'undefined' })
+  })
   return {
     $or: word_matches
   };
