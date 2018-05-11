@@ -32,7 +32,8 @@
 	"DTD_DOB" : 15,
 	"DTY_DOB" : 1970,
 	"UPLOAD_VITA" : "tu01/cv.pdf",
-	"UPLOAD_PHOTO" : "tu01/photo.jpg"
+	"UPLOAD_PHOTO" : "tu01/photo.jpg",
+	"lname_words": ["john","jacob","smith"]
 },{
 	"_id" : ObjectId("2abd0e1396e30e78b06369fa"),
 	"lastModified" : "2017-03-28T08:17:03",
@@ -73,5 +74,6 @@
 	"DPHONE3" : "1515",
 	"DTM_DOB" : "Dec",
 	"DTD_DOB" : 15,
-	"DTY_DOB" : 1971
+	"DTY_DOB" : 1971,
+	"lname_words": ["jane", "sue", "doe", "remi"]
 }]
