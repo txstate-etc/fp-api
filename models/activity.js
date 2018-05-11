@@ -235,8 +235,8 @@ ActivitySchema.methods.translate = function () {
     ret.type = 'grant';
   } else if (activity.isService()) {
     ret.type = 'service';
-    ret.role = activity.ROLE || "Role Not Specified";
-    if (activity.ROLE == "Other") ret.role = activity.ROLEOTHER || "Role Not Specified";
+    ret.role = activity.ROLE || "Other";
+    if (activity.ROLE == "Other") ret.role = activity.ROLEOTHER || "Other";
     ret.organization = activity.ORG;
     ret.city = activity.CITY;
     ret.state = activity.STATE;
