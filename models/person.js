@@ -39,14 +39,12 @@ var PersonSchema = new Schema({
   }],
   cached_face_detection: { x: Number, y: Number, width: Number, height: Number, imgW: Number, imgH: Number },
   cached_face_detection_version: Number,
-  lname_words: [String],
-  lname_words_version: Number
+  lname_words: [String]
 });
 
 PersonSchema.index({user_id: 1});
 PersonSchema.index({UPLOAD_PHOTO: 1});
 PersonSchema.index({cached_face_detection_version: 1});
-PersonSchema.index({lname_words_version: 1});
 PersonSchema.index({lname_words: 1}, {collation: {locale: 'en_US', strength: 2}});
 
 PersonSchema.virtual('display_name').get(function () {
@@ -219,26 +217,6 @@ var process_image = function(im, method) {
   })
 }
 
-function add_words(words, ...strings) {
-  strings.forEach((str) => {
-    if (str) str.split(/[^\w\.]+/).forEach((word) => {
-      if (word.length > 1) words.add(word)
-    })
-  })
-}
-
-var lastname_index_version = 1
-PersonSchema.methods.lastname_index = function() {
-  var person = this
-  var words = new Set()
-  add_words(words, person.LNAME)
-  if (person.PFNAME) add_words(words, person.PFNAME)
-  else add_words(words, person.FNAME, person.MNAME)
-  person.lname_words = Array.from(words)
-  person.lname_words_version = lastname_index_version
-  return person.save()
-}
-
 PersonSchema.statics.watch_and_cache = async function () {
   var Person = mongoose.model('Person');
   var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection_version: { $ne: global.app_version } }).limit(20)
@@ -251,12 +229,6 @@ PersonSchema.statics.watch_and_cache = async function () {
   } catch(err)  {
     console.log(err)
   }
-
-  people = await Person.find({ lname_words_version: { $ne: lastname_index_version } }).limit(100)
-  for (person of people) {
-    await person.lastname_index()
-  }
-
   setTimeout(Person.watch_and_cache, 9000)
 }
 
