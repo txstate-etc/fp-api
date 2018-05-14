@@ -129,22 +129,18 @@ router.route('/:userid/activity/:type')
           }
         }
         if (activityYear == "YYYY") {
-          activityYear = "Date Not Specified";
+          activityYear = "0";
         }
         if (!activityYearMap.has(activityYear)) {
           activityYearMap.set(activityYear, []);
         }
         activityYearMap.get(activityYear).push(activity.translate());
       })
-      //put the items with no date specified at the bottom
-      if (activityYearMap.has("Date Not Specified")) {
-        var notSpecified = activityYearMap.get("Date Not Specified");
-        activityYearMap.delete("Date Not Specified");
-        activityYearMap.set("Date Not Specified", notSpecified)
-      }
+      sortedMap = new Map([... activityYearMap.entries()].sort().reverse())
       ret.activities = [];
-      activityYearMap.forEach(function(value, key, map) {
-        ret.activities.push({year: key, items: value})
+      sortedMap.forEach(function(value, key, map) {
+        var year = (key != 0)? key : "Date Not Specified";
+        ret.activities.push({year: year, items: value})
       })
       res.json(ret)
     })
