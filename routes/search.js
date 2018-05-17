@@ -21,7 +21,7 @@ router.route('/list')
     var [skip, limit] = skip_limit(req.query);
     Promise.all([
       Person.find(person_filters).count(),
-      lookup_person(person_filters, 0, limit)
+      lookup_person(person_filters, skip, limit)
     ])
     .then(function (results) {
       var [people_count, people] = results
