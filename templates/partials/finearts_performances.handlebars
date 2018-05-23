@@ -1,7 +1,7 @@
 {{#if venues}}
-<div class="performances">
-  <div class="listlabel" style="padding-left: 1.25em; float: left; clear: both">{{performancesphrase}}:</div>
-  <ul class="venues" style="margin-left: 9em; padding: 0; list-style: none">
+<div class="performances" style="padding-left: 1.25em;">
+  <div class="listlabel">{{performancesphrase}}:</div>
+  <ul class="venues" style="padding: 0; list-style: none">
     {{#ng-each venues~}}
       <li>
         {{#if this.title}}
