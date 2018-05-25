@@ -14,7 +14,8 @@ var handlebars = require('./fp-handlebars').getInstance();
 
 require('./helpers/extensions.js');
 
-global.app_version = 4;
+global.person_version = 4;
+global.activity_version = 5;
 
 var app = express();
 

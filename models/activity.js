@@ -205,7 +205,7 @@ ActivitySchema.statics.types_service = types_service;
 
 ActivitySchema.statics.watch_and_cache = function () {
   var Activity = mongoose.model('Activity');
-  Activity.find({ cached_full_description_version: { $ne: global.app_version } }).limit(50)
+  Activity.find({ cached_full_description_version: { $ne: global.activity_version } }).limit(50)
   .then(function (activities) {
     activities.map(function(act) {
       try {
@@ -278,7 +278,7 @@ ActivitySchema.methods.html_teaching_interests = function () {
 
 ActivitySchema.methods.full_description = function () {
   var activity = this;
-  if (activity.cached_full_description && activity.cached_full_description_version >= global.app_version) {
+  if (activity.cached_full_description && activity.cached_full_description_version >= global.activity_version) {
     return activity.cached_full_description
   }
 
@@ -299,7 +299,7 @@ ActivitySchema.methods.full_description = function () {
     activity.cached_full_description = formatServiceText(activity);
   }
 
-  activity.cached_full_description_version = global.app_version
+  activity.cached_full_description_version = global.activity_version
   activity.save()
   return activity.cached_full_description
 }

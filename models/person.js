@@ -196,7 +196,7 @@ PersonSchema.methods.face_detection = async function () {
       })
     })
   }
-  person.cached_face_detection_version = global.app_version
+  person.cached_face_detection_version = global.person_version
   person.cached_face_detection = info
   person.save()
   return info
@@ -219,7 +219,7 @@ var process_image = function(im, method) {
 
 PersonSchema.statics.watch_and_cache = async function () {
   var Person = mongoose.model('Person');
-  var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection_version: { $ne: global.app_version } }).limit(20)
+  var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection_version: { $ne: global.person_version } }).limit(20)
 
   if (people.length > 0) console.log('processing '+people.length+' profile photos looking for faces...')
   try {
