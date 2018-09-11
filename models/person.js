@@ -219,10 +219,10 @@ var process_image = function(im, method) {
 
 PersonSchema.statics.watch_and_cache = async function () {
   var Person = mongoose.model('Person');
-  var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection_version: { $ne: global.person_version } }).limit(20)
-
-  if (people.length > 0) console.log('processing '+people.length+' profile photos looking for faces...')
   try {
+    var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection_version: { $ne: global.person_version } }).limit(20)
+
+    if (people.length > 0) console.log('processing '+people.length+' profile photos looking for faces...')
     for (person of people) {
       await person.face_detection()
     }
