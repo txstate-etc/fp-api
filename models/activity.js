@@ -189,6 +189,7 @@ var ActivitySchema = new Schema({
 });
 
 ActivitySchema.index({user_id: 1});
+ActivitySchema.index({username: 1});
 ActivitySchema.index({'$**': 'text'});
 ActivitySchema.index({cached_full_description_version: 1});
 
