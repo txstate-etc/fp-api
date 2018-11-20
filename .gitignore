@@ -33,3 +33,4 @@ npm-debug.log
 
 # We use docker so we do not require a package-lock in the repo
 package-lock.json
+.vscode
