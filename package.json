@@ -10,7 +10,7 @@
     "body-parser": ">=1.18.2",
     "citeproc-js-node": ">=0.0.3",
     "cookie-parser": ">=1.4.3",
-    "debug": "~2",
+    "debug": "^2.6.9",
     "express": "~4",
     "fast-exif": ">=1.0.1",
     "file-type": ">=7.7.1",
