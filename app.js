@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var profile = require('./routes/profile');
+var profiles = require('./routes/profiles');
 var department = require('./routes/department');
 var search = require('./routes/search');
 var files = require('./routes/files');
@@ -64,6 +65,7 @@ global.dm_files_path = process.env.DM_FILE_PATH || '/fp-files/';
 
 app.use('/', index);
 app.use('/profile', profile);
+app.use('/profiles', profiles);
 app.use('/department', department);
 app.use('/search', search);
 app.use('/files', files);

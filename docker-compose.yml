@@ -4,6 +4,7 @@ services:
     build: .
     environment:
       DB_HOST: mongodb
+      FPAPI_SECRET: topsecret
     ports:
       - 3000:80
     volumes:
