@@ -52,7 +52,7 @@ var serve_file = async function (req, res, path, filename) {
     res.setHeader('Last-Modified', new Date())
 
     var buffer = await readChunk(filepath, 0, 4100)
-    var data = fileType(buffer)
+    var data = await fileType.fromBuffer(buffer)
     res.setHeader('Content-Type', data.mime)
     var disposition = data.mime.startsWith('image/') ? 'inline' : 'attachment'
     res.setHeader('Content-Disposition', disposition+';filename='+filename)

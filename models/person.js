@@ -162,7 +162,7 @@ PersonSchema.methods.face_detection = async function () {
   console.log(filepath)
 
   var buffer = await readChunk(filepath, 0, 4100)
-  var data = fileType(buffer)
+  var data = await fileType.fromBuffer(buffer)
   var ext = data ? data.ext : ''
   var exifdata = null
   try {
