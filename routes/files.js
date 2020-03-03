@@ -58,8 +58,9 @@ var serve_file = async function (req, res, path, filename) {
     res.setHeader('Content-Disposition', disposition+';filename='+filename)
     res.setHeader('Content-Length', stats.size)
 
-    var stream = await file_stream(filepath)
-    stream.pipe(res);
+    var stream = fs.createReadStream(filepath)
+    stream.on('error', e => { console.error(e); res.end() })
+    stream.pipe(res)
   }
 }
 
@@ -69,14 +70,6 @@ var file_stat = function (filepath) {
       if (err) return reject(err)
       return resolve(stats)
     })
-  })
-}
-
-var file_stream = function (filepath) {
-  return new Promise(function(resolve, reject) {
-    var stream = fs.createReadStream(filepath)
-    stream.on('error', reject)
-    stream.on('readable', function () { resolve(stream) })
   })
 }
 

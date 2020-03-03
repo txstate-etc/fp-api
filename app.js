@@ -15,7 +15,7 @@ var handlebars = require('./fp-handlebars').getInstance();
 
 require('./helpers/extensions.js');
 
-global.person_version = 4;
+global.person_version = 10;
 global.activity_version = 5;
 
 var app = express();
@@ -39,26 +39,32 @@ if (db_user.length > 0 && db_pw.length > 0) db_userpassword_prefix = db_user+':'
 var db_authdb_suffix = '';
 if (db_authdb.length > 0) db_authdb_suffix = '?authSource='+db_authdb;
 
-var db_connect = function () {
-  mongoose.connect('mongodb://'+db_userpassword_prefix+db_host+':'+db_port+'/'+db_name+db_authdb_suffix, {
-    ssl: process.env.DB_SSL == 'true' ? true : false,
-    reconnectTries: Number.MAX_VALUE,
-    reconnectInterval: 500,
-    poolSize: 20
-  })
-  .then(function () {
-    console.log("DB connection alive");
-    var Activity = require('./models/activity');
-    var Person = require('./models/person');
-    setTimeout(Activity.watch_and_cache, 5000);
-    setTimeout(Person.watch_and_cache, 9000);
-  })
-  .catch(function (err) {
-    console.log(err)
-    setTimeout(db_connect, 5000)
-  })
+var db_connect = async function () {
+  try {
+    await mongoose.connect('mongodb://'+db_userpassword_prefix+db_host+':'+db_port+'/'+db_name+db_authdb_suffix, {
+      ssl: process.env.DB_SSL == 'true' ? true : false,
+      reconnectTries: Number.MAX_VALUE,
+      reconnectInterval: 500,
+      poolSize: 20
+    })
+  } catch (e) {
+    console.error(e)
+    return setTimeout(db_connect, 5000)
+  }
+  console.log("DB connection alive");
+
+  var Activity = require('./models/activity');
+  var Person = require('./models/person');
+
+  while (true) {
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await Activity.watch_and_cache();
+    await Person.watch_and_cache();
+  }
 }
-db_connect()
+db_connect().catch(function (err) {
+  console.error(err);
+})
 
 global.dm_files_path = process.env.DM_FILE_PATH || '/fp-files/';
 

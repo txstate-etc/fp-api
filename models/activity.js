@@ -204,22 +204,16 @@ ActivitySchema.statics.types_grant = types_grant;
 var types_service = ['SERVICE_PROFESSIONAL', 'SERVICE_UNIVERSITY', 'SERVICE_PUBLIC'];
 ActivitySchema.statics.types_service = types_service;
 
-ActivitySchema.statics.watch_and_cache = function () {
+ActivitySchema.statics.watch_and_cache = async function () {
   var Activity = mongoose.model('Activity');
-  Activity.find({ cached_full_description_version: { $ne: global.activity_version } }).limit(50)
-  .then(function (activities) {
-    activities.map(function(act) {
-      try {
-        return act.full_description()
-      } catch (err) {
-        console.log(act, err);
-      }
-    })
-  })
-  .catch(function (err)  {
-    console.log(err)
-  })
-  setTimeout(Activity.watch_and_cache, 5000)
+  const activities = await Activity.find({ cached_full_description_version: { $ne: global.activity_version } }).limit(50)
+  for (const act of activities) {
+    try {
+      act.full_description()
+    } catch (err) {
+      console.log(act, err)
+    }
+  }
 }
 
 ActivitySchema.methods.translate = function () {
@@ -301,7 +295,8 @@ ActivitySchema.methods.full_description = function () {
   }
 
   activity.cached_full_description_version = global.activity_version
-  activity.save()
+  if (typeof activity.NUM_VOLUMES === 'string' && activity.NUM_VOLUMES.trim().toLowerCase() === "na") delete activity.NUM_VOLUMES
+  activity.save().catch(e => console.log(e))
   return activity.cached_full_description
 }
 

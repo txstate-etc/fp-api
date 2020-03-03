@@ -7,17 +7,21 @@
     "dev": "node-dev --no-notify ./bin/www"
   },
   "dependencies": {
+    "@tensorflow/tfjs-node": "^1.5.2",
     "body-parser": ">=1.18.2",
+    "canvas": "^2.6.1",
     "citeproc-js-node": ">=0.0.3",
     "cookie-parser": ">=1.4.3",
     "debug": "^2.6.9",
     "express": "~4",
+    "face-api.js": "^0.22.1",
     "fast-exif": ">=1.0.1",
     "file-type": ">=7.7.1",
     "handlebars": "~4",
     "mongoose": "~5",
     "morgan": "~1",
-    "opencv": ">=6.0.0",
-    "read-chunk": ">=2.1.0"
+    "read-chunk": ">=2.1.0",
+    "utif": "^3.1.0",
+    "workerpool": "^5.0.4"
   }
 }

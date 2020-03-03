@@ -1,1 +1,7 @@
 node_modules
+.git
+.vscode
+mongo-seed
+README.md
+package-lock.json
+docker-compose*yml

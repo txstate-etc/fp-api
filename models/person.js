@@ -3,11 +3,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Path = require('path');
 var Config = require('../helpers/configuration.js')
-var cv = require('opencv')
 var readChunk = require('read-chunk')
 var fileType = require('file-type')
 var path = require('path')
 var exif = require('fast-exif')
+var workerpool = require('workerpool').pool('/usr/src/app/face.js')
+var Face = require('./face')
 
 var PersonSchema = new Schema({
   user_id : Number,
@@ -37,14 +38,11 @@ var PersonSchema = new Schema({
       is_academic: Boolean
     }
   }],
-  cached_face_detection: { x: Number, y: Number, width: Number, height: Number, imgW: Number, imgH: Number },
-  cached_face_detection_version: Number,
   lname_words: [String]
 });
 
 PersonSchema.index({user_id: 1});
 PersonSchema.index({UPLOAD_PHOTO: 1});
-PersonSchema.index({cached_face_detection_version: 1});
 PersonSchema.index({lname_words: 1}, {collation: {locale: 'en_US', strength: 2}});
 
 PersonSchema.virtual('display_name').get(function () {
@@ -116,9 +114,15 @@ PersonSchema.methods.advanced_info = function () {
   return ret;
 }
 
+PersonSchema.virtual('face', {
+  ref: 'Face',
+  localField: 'user_id',
+  foreignField: 'user_id',
+  justOne: true
+})
 
-PersonSchema.methods.face_crop = function (face) {
-  face = face || this.cached_face_detection
+PersonSchema.methods.face_crop = function () {
+  var face = this.face ? this.face.info : {}
   if (!face.width || face.width == 0) return { detected: false, aspect: face.imgH && face.imgH > 0 ? face.imgW / parseFloat(face.imgH) : 0 }
   var w = face.imgW;
   var h = face.imgH;
@@ -126,25 +130,31 @@ PersonSchema.methods.face_crop = function (face) {
   var fh = face.height;
   var left = face.x;
   var right = w-fw-face.x;
-  var top = face.y;
-  var bottom = h-fh-face.y;
+  var top = face.y + (fh * 0.1);
+  var bottom = Math.max(0, h-fh-top);
 
-  var distance = Math.min(left, right, top, bottom)
+  // find a box that has an ideal zoom level on the face
+  // it's ok if it goes off the canvas
+  var idealzoom = 2.5
+  var nw = Math.min(w, fw * idealzoom)
+  var x = left - Math.floor((nw - fw) / 2)
+  var nh = Math.min(h, fh * idealzoom)
+  var y = top - Math.floor((nh - fh) / 2)
 
-  var x = left - distance
-  var y = top - distance
-  var nw = fw+2*distance
-  var nh = fh+2*distance
-
-  if (nw < fw * 1.5) {
-    var needed = Math.floor(fw*1.5-nw);
-    var adjust = Math.min(w-nw, h-nh, needed)
-
-    nw += adjust
-    x -= Math.min(x, Math.max(Math.ceil(adjust/2.0), nw+x-w))
-    nh += adjust
-    y -= Math.min(y, Math.max(Math.ceil(adjust/2.0), nh+y-h))
+  // make our ideal box a square
+  if (nw > nh) {
+    x += Math.floor((nw - nh) / 2)
+    nw = nh
+  } else {
+    y += Math.floor((nh - nw) / 2)
+    nh = nw
   }
+
+  // shift it onto the canvas
+  if (x < 0) x = 0
+  if (x + nw > w) x = w - nw
+  if (y < 0) y = 0
+  if (y + nh > h) y = h - nh
 
   return {
     detected: true,
@@ -173,63 +183,32 @@ PersonSchema.methods.face_detection = async function () {
 
   var info = {}
   if (['jpg','png','gif','tif','bmp'].includes(ext)) {
-    info = await new Promise(function(resolve,reject) {
-      cv.readImage(filepath, function (err, im) {
-        if (err) return resolve({});
-        if (exifdata) {
-          var rotation = exifdata.image.Orientation
-          if (rotation == 3) im.rotate(180)
-          if (rotation == 6) im.rotate(90)
-          if (rotation == 8) im.rotate(-90)
-        }
-
-        process_image(im, 'alt2')
-        .then(function (ifo) {
-          return ifo.width ? ifo : process_image(im, 'alt')
-        })
-        .then(function (ifo) {
-          return ifo.width ? ifo : process_image(im, 'default')
-        })
-        .then(function (ifo) {
-          resolve(ifo)
-        })
-      })
-    })
+    info = await workerpool.exec('face', [filepath, exifdata])
+    if (!Object.keys(info).length) console.log(`could not detect face for ${this.basic_info().display_name} (${this.user_id})`)
   }
-  person.cached_face_detection_version = global.person_version
-  person.cached_face_detection = info
-  person.save()
+  this.face = this.face || new Face({ user_id: this.user_id })
+  this.face.info = info
+  this.face.version = global.person_version
+  this.face.filename = person.UPLOAD_PHOTO
+  await this.face.save()
   return info
-}
-
-var cascade_path = path.join(path.dirname(require.resolve("opencv")), '..', 'data');
-var process_image = function(im, method) {
-  return new Promise(function (resolve, reject) {
-    setTimeout(function () { // since we do this three times, give the run loop a chance to run something else in between executions
-      im.detectObject(cascade_path+'/haarcascade_frontalface_'+method+'.xml', {}, function (err, faces) {
-        if (err || !faces) return resolve({});
-        faces = faces.filter(function (face) { return face.width / parseFloat(im.width()) > 0.15 })
-        if (faces.length == 0 || faces.length > 1) return resolve({imgW: im.width(), imgH: im.height()})
-        var face = faces[0];
-        resolve({x: face.x, y: face.y, width: face.width, height: face.height, imgW: im.width(), imgH: im.height()})
-      })
-    }, 0);
-  })
 }
 
 PersonSchema.statics.watch_and_cache = async function () {
   var Person = mongoose.model('Person');
-  try {
-    var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' }, cached_face_detection_version: { $ne: global.person_version } }).limit(20)
-
-    if (people.length > 0) console.log('processing '+people.length+' profile photos looking for faces...')
-    for (person of people) {
+  var people = await Person.find({ UPLOAD_PHOTO: { $exists: true, $ne: '' } })
+  var needsDetection = people.filter(p => !p.face || p.face.version !== global.person_version || p.UPLOAD_PHOTO !== p.face.filename)
+  if (needsDetection.length > 0) console.log('processing '+needsDetection.length+' profile photos looking for faces...')
+  for (var person of needsDetection) {
+    try {
       await person.face_detection()
+    } catch (e) {
+      console.log(e)
     }
-  } catch(err)  {
-    console.log(err)
   }
-  setTimeout(Person.watch_and_cache, 9000)
 }
+
+PersonSchema.pre('find', function () { this.populate('face') })
+PersonSchema.pre('findOne', function () { this.populate('face') })
 
 module.exports = mongoose.model('Person', PersonSchema);

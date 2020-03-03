@@ -24,6 +24,9 @@ services:
       - mongodb
   mongodb:
     image: mongo:latest
+    command: --logpath /dev/null
+    ports:
+      - 27017:27017
     volumes:
       - facultyprofilesdb:/data/db
 volumes:
