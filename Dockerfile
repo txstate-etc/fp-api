@@ -9,10 +9,10 @@ ADD https://github.com/justadudewhohacks/face-api.js/raw/master/weights/ssd_mobi
 
 COPY package.json ./
 
-RUN npm install && rm -rf /usr/src/app/node_modules/@tensorflow/tfjs-node/deps/*
+RUN npm install && rm -rf /usr/src/app/node_modules/\@tensorflow/tfjs-node/deps/*
 
 WORKDIR /usr/src/app/node_modules/@tensorflow/tfjs-node/deps
-COPY --from=tf /tensorflow/bazel-bin/tensorflow/tools/lib_package/libtensorflow.tar.gz ./
+COPY --from=tf /root/libtensorflow.tar.gz ./
 RUN tar -xf libtensorflow.tar.gz && rm libtensorflow.tar.gz
 
 WORKDIR /usr/src/app
