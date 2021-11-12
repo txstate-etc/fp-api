@@ -7,8 +7,8 @@ const auth = require('../helpers/auth.js');
 async function getProfile(netid) {
   let profile = {}
   let [person, bio] = await Promise.all([
-    Person.findOne({"username" : netid}),
-    Activity.findOne({"username" : netid, "doc_type" : "PROFILE"}),
+    Person.findOne({"username" : netid}).collation({ locale: 'en_US', strength: 2 }),
+    Activity.findOne({"username" : netid, "doc_type" : "PROFILE"}).collation({ locale: 'en_US', strength: 2 }),
   ])
   if (!person) {
     return null

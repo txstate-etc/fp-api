@@ -20,7 +20,7 @@
     "handlebars": "~4",
     "mongoose": "~5",
     "morgan": "~1",
-    "read-chunk": ">=2.1.0",
+    "read-chunk": "=3.2.0",
     "utif": "^3.1.0",
     "workerpool": "^5.0.4"
   }
