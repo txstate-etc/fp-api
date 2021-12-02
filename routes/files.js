@@ -4,8 +4,8 @@ var Person = require('../models/person');
 var Activity = require('../models/activity');
 var fs = require('fs');
 var Path = require('path');
-var fileType = require('file-type');
-var readChunk = require('read-chunk');
+var fileTypePromise = import('file-type');
+var readChunkPromise = import('read-chunk');
 
 router.route('/cv/:userid/:filename')
   .get(function(req, res, next) {
@@ -51,8 +51,10 @@ var serve_file = async function (req, res, path, filename) {
   } else {
     res.setHeader('Last-Modified', new Date())
 
-    var buffer = await readChunk(filepath, 0, 4100)
-    var data = await fileType.fromBuffer(buffer)
+    var readChunk = await readChunkPromise
+    var fileType = await fileTypePromise
+    var buffer = await readChunk.readChunk(filepath, 0, 4100)
+    var data = await fileType.fileTypeFromBuffer(buffer)
     res.setHeader('Content-Type', data.mime)
     var disposition = data.mime.startsWith('image/') ? 'inline' : 'attachment'
     res.setHeader('Content-Disposition', disposition+';filename='+filename)

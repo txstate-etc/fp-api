@@ -3,8 +3,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var Path = require('path');
 var Config = require('../helpers/configuration.js')
-var readChunk = require('read-chunk')
-var fileType = require('file-type')
+var readChunkPromise = import('read-chunk')
+var fileTypePromise = import('file-type')
 var path = require('path')
 var exif = require('fast-exif')
 var workerpool = require('workerpool').pool('/usr/src/app/face.js')
@@ -171,9 +171,10 @@ PersonSchema.methods.face_detection = async function () {
 
   var filepath = global.dm_files_path+person.UPLOAD_PHOTO
   console.log(filepath)
-
-  var buffer = await readChunk(filepath, 0, 4100)
-  var data = await fileType.fromBuffer(buffer)
+  var readChunk = await readChunkPromise
+  var fileType = await fileTypePromise
+  var buffer = await readChunk.readChunk(filepath, { start: 0, length: 4100 })
+  var data = await fileType.fileTypeFromBuffer(buffer)
   var ext = data ? data.ext : ''
   var exifdata = null
   try {
