@@ -7,14 +7,15 @@
     "dev": "node-dev --no-notify ./bin/www"
   },
   "dependencies": {
-    "@tensorflow/tfjs-node": "^1.5.2",
+    "@tensorflow/tfjs-node": "^3.11.0",
+    "@tensorflow/tfjs-backend-wasm": "^3.11.0",
     "body-parser": ">=1.18.2",
     "canvas": "^2.6.1",
     "citeproc-js-node": ">=0.0.3",
     "cookie-parser": ">=1.4.3",
     "debug": "^2.6.9",
     "express": "~4",
-    "face-api.js": "^0.22.1",
+    "@vladmandic/face-api": "^1.5.8",
     "fast-exif": ">=1.0.1",
     "file-type": ">=7.7.1",
     "handlebars": "~4",

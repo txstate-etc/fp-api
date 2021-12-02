@@ -7,7 +7,7 @@ var readChunkPromise = import('read-chunk')
 var fileTypePromise = import('file-type')
 var path = require('path')
 var exif = require('fast-exif')
-var workerpool = require('workerpool').pool('/usr/src/app/face.js')
+var workerpool = require('workerpool').pool('/usr/app/face.js')
 var Face = require('./face')
 
 var PersonSchema = new Schema({

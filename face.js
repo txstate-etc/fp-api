@@ -1,12 +1,18 @@
 const workerpool = require('workerpool')
 const canvas = require('canvas')
-const faceapi = require('face-api.js')
 const UTIF = require('utif')
 const fs = require('fs')
-require('@tensorflow/tfjs-node')
-faceapi.env.monkeyPatch({ Canvas: canvas.Canvas, Image: canvas.Image, ImageData: canvas.ImageData })
+require('@tensorflow/tfjs')
+require('@tensorflow/tfjs-backend-wasm')
+const faceapi = require('@vladmandic/face-api')
 const faceoptions = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.35 })
-const loadpromise = faceapi.nets.ssdMobilenetv1.loadFromDisk('/usr/src/app/weights');
+faceapi.env.monkeyPatch({ Canvas: canvas.Canvas, Image: canvas.Image, ImageData: canvas.ImageData })
+const loadpromise = (async () => {
+  await faceapi.tf.setBackend('wasm')
+  await faceapi.tf.enableProdMode()
+  await faceapi.nets.ssdMobilenetv1.loadFromDisk(__dirname + '/node_modules/@vladmandic/face-api/model')
+  await faceapi.tf.ready()
+})()
 
 function faceSize (face) {
   return face._box._width * face._box._height
