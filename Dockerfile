@@ -1,14 +1,10 @@
-FROM node:14-buster-slim as build
-RUN apt-get update && apt-get install python build-essential -y
+FROM node:16-buster-slim as build
 WORKDIR /usr/app
-
+ADD https://raw.githubusercontent.com/vladmandic/face-api/master/model/ssd_mobilenetv1_model-weights_manifest.json ./weights/
+ADD https://raw.githubusercontent.com/vladmandic/face-api/master/model/ssd_mobilenetv1_model.bin ./weights/
 COPY package.json ./
 RUN npm install --production --no-optional
-
-FROM node:14-buster-slim
-WORKDIR /usr/app
 COPY . .
-COPY --from=build /usr/app/node_modules node_modules
 
 ENV PORT 80
 EXPOSE 80

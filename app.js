@@ -43,9 +43,9 @@ var db_connect = async function () {
   try {
     await mongoose.connect('mongodb://'+db_userpassword_prefix+db_host+':'+db_port+'/'+db_name+db_authdb_suffix, {
       ssl: process.env.DB_SSL == 'true' ? true : false,
-      reconnectTries: Number.MAX_VALUE,
-      reconnectInterval: 500,
-      poolSize: 20
+      poolSize: 20,
+      useUnifiedTopology: true,
+      useNewUrlParser: true
     })
   } catch (e) {
     console.error(e)

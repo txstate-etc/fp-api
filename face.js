@@ -2,15 +2,14 @@ const workerpool = require('workerpool')
 const canvas = require('canvas')
 const UTIF = require('utif')
 const fs = require('fs')
-require('@tensorflow/tfjs')
-require('@tensorflow/tfjs-backend-wasm')
-const faceapi = require('@vladmandic/face-api')
+const faceapi = require('./helpers/face-api.node-wasm')
 const faceoptions = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.35 })
 faceapi.env.monkeyPatch({ Canvas: canvas.Canvas, Image: canvas.Image, ImageData: canvas.ImageData })
+
 const loadpromise = (async () => {
   await faceapi.tf.setBackend('wasm')
   await faceapi.tf.enableProdMode()
-  await faceapi.nets.ssdMobilenetv1.loadFromDisk(__dirname + '/node_modules/@vladmandic/face-api/model')
+  await faceapi.nets.ssdMobilenetv1.loadFromDisk(__dirname + '/weights')
   await faceapi.tf.ready()
 })()
 
@@ -56,6 +55,7 @@ async function main (filepath, exifdata) {
       ctx.drawImage(img, 0, 0)
     }
   } catch (e) {
+    // let's try to open it as a TIFF and see if that works
     const imgBuffer = fs.readFileSync(filepath)
     const [ifd] = UTIF.decode(imgBuffer)
     UTIF.decodeImage(imgBuffer, ifd)
@@ -67,6 +67,7 @@ async function main (filepath, exifdata) {
       ctx.putImageData(imgData, 0, 0)
     }
   }
+
   await loadpromise
   const faces = await faceapi.detectAllFaces(cvs || img, faceoptions)
   const imgarea = (cvs || img).width * (cvs || img).height
