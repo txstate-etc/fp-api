@@ -173,7 +173,7 @@ var lookup_all = async function (query) {
 
   var [skip, limit] = skip_limit(query);
 
-  var [people_count, people, interest_count, interest, publication_count, publication, grant_count, grant, award_count, award] = await Promise.all([
+  var [people_count, people, interest_count, interest, publication_count, publication, grant_count, grant, award_count, award, service_count, service] = await Promise.all([
     Person.find(person_filters).count(),
     lookup_person(person_filters, 0, limit),
     Activity.find({'doc_type': Activity.type_profile}.mergeHash(activity_filters)).count(),
@@ -184,6 +184,8 @@ var lookup_all = async function (query) {
     lookup_activity({'doc_type': { $in: Activity.types_grant } }.mergeHash(activity_filters), 0, limit),
     Activity.find({'doc_type': { $in: Activity.types_award } }.mergeHash(activity_filters)).count(),
     lookup_activity({'doc_type': { $in: Activity.types_award } }.mergeHash(activity_filters), 0, limit),
+    Activity.find({'doc_type': { $in: Activity.types_service } }.mergeHash(activity_filters)).count(),
+    lookup_activity({'doc_type': { $in: Activity.types_service } }.mergeHash(activity_filters), 0, limit),
   ]);
 
   return {
@@ -206,6 +208,10 @@ var lookup_all = async function (query) {
     award: {
       total: award_count,
       results: award
+    },
+    service: {
+      total: service_count,
+      results: service
     }
   };
 }
