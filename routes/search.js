@@ -175,17 +175,17 @@ var lookup_all = async function (query) {
 
   var [people_count, people, interest_count, interest, publication_count, publication, grant_count, grant, award_count, award, service_count, service] = await Promise.all([
     Person.find(person_filters).count(),
-    lookup_person(person_filters, 0, limit),
+    lookup_person(person_filters, skip, limit),
     Activity.find({'doc_type': Activity.type_profile}.mergeHash(activity_filters)).count(),
-    lookup_activity({'doc_type': Activity.type_profile}.mergeHash(activity_filters), 0, limit),
+    lookup_activity({'doc_type': Activity.type_profile}.mergeHash(activity_filters), skip, limit),
     Activity.find({'doc_type': { $in: Activity.types_scholarly } }.mergeHash(activity_filters)).count(),
-    lookup_activity({'doc_type': { $in: Activity.types_scholarly } }.mergeHash(activity_filters), 0, limit),
+    lookup_activity({'doc_type': { $in: Activity.types_scholarly } }.mergeHash(activity_filters), skip, limit),
     Activity.find({'doc_type': { $in: Activity.types_grant } }.mergeHash(activity_filters)).count(),
-    lookup_activity({'doc_type': { $in: Activity.types_grant } }.mergeHash(activity_filters), 0, limit),
+    lookup_activity({'doc_type': { $in: Activity.types_grant } }.mergeHash(activity_filters), skip, limit),
     Activity.find({'doc_type': { $in: Activity.types_award } }.mergeHash(activity_filters)).count(),
-    lookup_activity({'doc_type': { $in: Activity.types_award } }.mergeHash(activity_filters), 0, limit),
+    lookup_activity({'doc_type': { $in: Activity.types_award } }.mergeHash(activity_filters), skip, limit),
     Activity.find({'doc_type': { $in: Activity.types_service } }.mergeHash(activity_filters)).count(),
-    lookup_activity({'doc_type': { $in: Activity.types_service } }.mergeHash(activity_filters), 0, limit),
+    lookup_activity({'doc_type': { $in: Activity.types_service } }.mergeHash(activity_filters), skip, limit),
   ]);
 
   return {
