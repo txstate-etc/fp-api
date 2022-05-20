@@ -7,6 +7,8 @@ router.route('/all')
   .get(function(req, res, next) {
     lookup_all(req.query)
     .then(function (ret) {
+      var [skip, limit, ret] = ret
+      //console.log("page boundaries: %s, response: %s", JSON.stringify([skip, limit]), JSON.stringify(ret));
       res.json(ret);
     })
     .catch(function (err) {
@@ -118,36 +120,36 @@ var fetch_eligible_person_filter = async function(query) {
 var lookup_activity = async function(activity_filters, skip = 0, limit = 100) {
   var acts = []
   if (activity_filters['$text']) {
-    var words = activity_filters['$text']['$search'].match(/[\w\-]+|"(?:\\"|[^"])+"/g)
-    var promises = []
-    var filters = JSON.parse(JSON.stringify(activity_filters)) // deep copy so we don't mutate activity_filters
-    words.forEach((word) => {
-      filters['$text']['$search'] = word
-      promises.push(Activity.find(filters, {score: {$meta: 'textScore'}}).sort({score: { $meta: 'textScore' }}).skip(skip).limit(limit))
-    })
-    var results = await Promise.all(promises)
-    var acthash = new Map()
-    var i = 0
-    results.forEach((activities) => {
-      activities.forEach((act) => {
-        if (acthash.has(act.id)) {
-          var entry = acthash.get(act.id)
-          entry.matchingwords++
-          entry.score += act.score
-        }
-        else {
-          acthash.set(act.id, { matchingwords: 1, score: act.score, act: act })
-        }
-      })
-    })
-    var entries = Array.from(acthash.values()).sort((a,b) => {
-      if (a.matchingwords > b.matchingwords) return -1
-      if (a.matchingwords < b.matchingwords) return 1
-      if (a.score > b.score) return -1
-      if (a.score < b.score) return 1
-      return 0
-    })
-    acts = entries.map((entry) => { return entry.act })
+  //  var words = activity_filters['$text']['$search'].match(/[\w\-]+|"(?:\\"|[^"])+"/g)
+  //  var promises = []
+  //  var filters = JSON.parse(JSON.stringify(activity_filters)) // deep copy so we don't mutate activity_filters
+  //  words.forEach((word) => {
+  //    filters['$text']['$search'] = word
+  //    promises.push(Activity.find(filters, {score: {$meta: 'textScore'}}).sort({score: { $meta: 'textScore' }}).skip(skip).limit(limit))
+  //  })
+  //  var results = await Promise.all(promises)
+  //  var acthash = new Map()
+  //  results.forEach((activities) => {
+  //    activities.forEach((act) => {
+  //      if (acthash.has(act.id)) {
+  //        var entry = acthash.get(act.id)
+  //        entry.matchingwords++
+  //        entry.score += act.score
+  //      }
+  //      else {
+  //        acthash.set(act.id, { matchingwords: 1, score: act.score, act: act })
+  //      }
+  //    })
+  //  })
+  //  var entries = Array.from(acthash.values()).sort((a,b) => {
+  //    if (a.matchingwords > b.matchingwords) return -1
+  //    if (a.matchingwords < b.matchingwords) return 1
+  //    if (a.score > b.score) return -1
+  //    if (a.score < b.score) return 1
+  //    return 0
+  //  })
+  //  acts = entries.map((entry) => { return entry.act })
+    acts = await Activity.find(activity_filters, {score: {$meta: 'textScore'}}).sort({score: { $meta: 'textScore' }}).skip(skip).limit(limit)
   } else {
     acts = await Activity.find(activity_filters).skip(skip).limit(limit);
   }
@@ -167,10 +169,10 @@ var lookup_activity = async function(activity_filters, skip = 0, limit = 100) {
 }
 
 var lookup_all = async function (query) {
+  console.log('QUERY: %s', query)
   var eligibility_filter = await fetch_eligible_person_filter(query)
   var person_filters = name_filters(query.q).mergeHash(common_filters(query));
   var activity_filters = { $text: { $search: query.q || '' } }.mergeHash(eligibility_filter)
-
   var [skip, limit] = skip_limit(query);
 
   var [people_count, people, interest_count, interest, publication_count, publication, grant_count, grant, award_count, award, service_count, service] = await Promise.all([
@@ -188,7 +190,7 @@ var lookup_all = async function (query) {
     lookup_activity({'doc_type': { $in: Activity.types_service } }.mergeHash(activity_filters), skip, limit),
   ]);
 
-  return {
+  return [skip, limit, {
     name: {
       total: people_count,
       results: people
@@ -213,7 +215,7 @@ var lookup_all = async function (query) {
       total: service_count,
       results: service
     }
-  };
+  }];
 }
 
 var common_filters = function (query) {
