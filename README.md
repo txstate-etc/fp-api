@@ -1,20 +1,13 @@
 # fp-api
 
+This API backend works with a seperate view layer found under [fp-view](https://github.com/txstate-etc/fp-view.git).
+
 **To get started**:
 
-```
+```sh
 npm install
 npm start
 ```
 
-**To run in development mode:**
-
-This will automatically restart the server when you save changes.
-
-First, install nodemon:
-
-`npm install -g nodemon`
-
-And then:
-
-`npm run dev`
+Better yet, if you can run the following command in dependent repos or here if you're doing a stand-alone review of the API:
+`docker compose up --build`

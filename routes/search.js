@@ -236,7 +236,7 @@ var name_break = function (str) {
 var name_filters = function (querystr) {
   if (!querystr) return {};
   var word_matches = name_break(querystr).map(word => {
-    return { lname_words: { $regex: '^'+RegExp.quote(word), $options: '-i' } }
+    return { lname_words: { $regex: '^'+RegExp.quote(word), $options: 'i' } }
   })
   return {
     $or: word_matches
