@@ -1,4 +1,4 @@
-FROM node:20-buster-slim as build
+FROM node:19-buster-slim as build
 WORKDIR /usr/app
 ADD https://raw.githubusercontent.com/vladmandic/face-api/master/model/ssd_mobilenetv1_model-weights_manifest.json ./weights/
 ADD https://raw.githubusercontent.com/vladmandic/face-api/master/model/ssd_mobilenetv1_model.bin ./weights/

@@ -229,18 +229,18 @@ var name_break = function (str) {
   return str.replace(/[^\w\s\.\-]/g, '') // get rid of apostrophes and such
     .replace(/[\s\.\-]+/g, ' ').trim() // control whitespace
     .replace(/\b(\w) (\w)(?: (\w))?\b/g, '$1$2$3') // compress initials if they were spaced out or had periods
-    .split(/ /).filter(word => { return word.length > 1 }) // toss out single letters
+    .split(/ /)
+    //.filter(word => { return word.length > 1 }) // toss out single letters <-- This was causing single letter searches to throw error pages and is unintuitive for users.
     .map(word => { return word.toLowerCase() })
 }
 
 var name_filters = function (querystr) {
-  if (!querystr) return {};
+  if (!querystr) return {}
   var word_matches = name_break(querystr).map(word => {
     return { lname_words: { $regex: '^'+RegExp.quote(word), $options: 'i' } }
   })
-  return {
-    $or: word_matches
-  };
+  if (word_matches.length == 0) return {} // Avoid error pages when searches are requested for things entirely filtered out by name_break(str).
+  return { $or: word_matches }
 }
 
 var skip_limit = function (query) {

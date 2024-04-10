@@ -59,6 +59,20 @@ fi
 echo "Proceeding with versioned builds..."
 docker build -t registry.its.txstate.edu/$IMAGENAME .
 docker tag registry.its.txstate.edu/$IMAGENAME registry.its.txstate.edu/$IMAGENAME:$VER
-docker push registry.its.txstate.edu/$IMAGENAME
-docker push registry.its.txstate.edu/$IMAGENAME:$VER
+if `docker push registry.its.txstate.edu/$IMAGENAME`; then
+  echo "Pushed latest build to registry.its.txstate.edu/$IMAGENAME."
+else
+  echo "Failed to push latest build to registry.its.txstate.edu/$IMAGENAME.
+Please resolve the issues preventing the push and try again with the following command:
+
+    docker push registry.its.txstate.edu/$IMAGENAME"
+fi
+if `docker push registry.its.txstate.edu/$IMAGENAME:$VER`; then
+  echo "Pushed tagged build to registry.its.txstate.edu/$IMAGENAME:$VER."
+else
+  echo "Failed to push tagged build to registry.its.txstate.edu/$IMAGENAME:$VER.
+Please resolve the issues preventing the push and try again with the following command:
+
+    docker push registry.its.txstate.edu/$IMAGENAME:$VER"
+fi
 git push origin --tags

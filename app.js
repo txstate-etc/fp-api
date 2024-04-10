@@ -43,9 +43,9 @@ var db_connect = async function () {
   try {
     await mongoose.connect('mongodb://'+db_userpassword_prefix+db_host+':'+db_port+'/'+db_name+db_authdb_suffix, {
       ssl: process.env.DB_SSL == 'true' ? true : false,
-      poolSize: 20,
-      useUnifiedTopology: true,
-      useNewUrlParser: true
+      maxPoolSize: 20,
+      // useUnifiedTopology: true, <-- deprecated as an option and always treated as true now.
+      // useNewUrlParser: true <-- deprecated as an option and always treated as true now.
     })
   } catch (e) {
     console.error(e)
