@@ -60,7 +60,8 @@ echo "Proceeding with versioned builds..."
 docker build -t registry.its.txstate.edu/$IMAGENAME .
 docker tag registry.its.txstate.edu/$IMAGENAME registry.its.txstate.edu/$IMAGENAME:$VER
 PUSH_STATUS=$(docker push registry.its.txstate.edu/$IMAGENAME --quiet)
-if [[ $PUSH_STATUS = "registry.its.txstate.edu/$IMAGENAME" ]]; then
+echo $PUSH_STATUS
+if [[ $PUSH_STATUS = "registry.its.txstate.edu/$IMAGENAME:latest" ]]; then
   echo "Pushed latest build to registry.its.txstate.edu/$IMAGENAME."
 else
   echo "Failed to push latest build to registry.its.txstate.edu/$IMAGENAME.
@@ -70,6 +71,7 @@ Please resolve the issues preventing the push and try again with the following c
 "
 fi
 PUSH_STATUS=$(docker push registry.its.txstate.edu/$IMAGENAME:$VER --quiet)
+echo $PUSH_STATUS
 if [[ $PUSH_STATUS = "registry.its.txstate.edu/$IMAGENAME:$VER" ]]; then
   echo "Pushed tagged build to registry.its.txstate.edu/$IMAGENAME:$VER."
 else
