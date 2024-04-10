@@ -148,8 +148,10 @@ var ActivitySchema = new Schema({
   PUBLISHER_LOCATION : String,
   START_PAGE : String,
   END_PAGE : String,
+  // Not sure why this is called a NUM when it can be strings such as: 'Quarterly' or 'NA' - updated to String since that's how it's stored in the database.
+  // { $and: [{NUM_VOLUMES: { $exists: 1}}, {NUM_VOLUMES: {$not: {$type:'string'}}} ]} - no results returned.
   NUM_VOLUMES : {
-    type: Number,
+    type: String,
     alias: 'number-of-volumes'
   },
   REVIEW_AUTH: [{
