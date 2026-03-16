@@ -5,3 +5,4 @@ mongoimport --host mongodb --db facultyprofiles --collection activities --drop -
 mongoimport --host mongodb --db facultyprofiles --collection faces --drop --type json --file /faces.json --jsonArray || exit $?
 
 cp -R /seed-files/* /fp-files/
+sleep 60

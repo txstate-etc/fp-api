@@ -1,0 +1,15 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "playwright": "playwright test"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@playwright/test": "~1.48.0",
+    "@stylistic/eslint-plugin": "^2.10.1",
+    "eslint-config-love": "^97.0.0"
+  }
+}

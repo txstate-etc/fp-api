@@ -1,0 +1,35 @@
+version: "3"
+services:
+  fp-api:
+    build: .
+    platform: linux/amd64
+    environment:
+      DB_HOST: mongodb
+      FPAPI_SECRET: topsecret
+    volumes:
+      - ./debuglog:/root/.npm/_logs
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+  mongo-seed:
+    build: ./mongo-seed
+    restart: on-failure
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongo:latest
+    command: --logpath /dev/null
+  testing-container:
+    depends_on:
+      - fp-api
+    build:
+      context: .
+      dockerfile: test/Dockerfile
+    volumes:
+      - ./test/test-results:/test-results
+volumes:
+  facultyprofilesdb: {}
+  facultyprofilesfiles: {}
